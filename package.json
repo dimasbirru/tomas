@@ -1,0 +1,25 @@
+{
+  "name": "tomas",
+  "version": "0.1.0",
+  "description": "Pencatat log kerja harian pribadi. Ketik: tomas tambah \"tambah fitur pengaturan\"",
+  "type": "module",
+  "bin": {
+    "tomas": "bin/tomas.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node bin/tomas.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "cli",
+    "log",
+    "catatan",
+    "changelog",
+    "productivity",
+    "pribadi"
+  ],
+  "license": "MIT"
+}
