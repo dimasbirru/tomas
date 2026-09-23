@@ -2,13 +2,14 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { muatConfig } from "../src/core.js";
+import { muatConfig, pathCatatan, catat, tanggalHariIni, jamSekarang } from "../src/core.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const config = muatConfig();
 const pemilik = config.pemilik || "Dimas";
 const args = process.argv.slice(2);
 const perintah = args[0] ?? "";
+const pesan = args.slice(1).join(" ").trim();
 
 const c = (teks, kode) => (process.stdout.isTTY ? `\x1b[${kode}m${teks}\x1b[0m` : teks);
 const hijau = (t) => c(t, "32");
@@ -47,7 +48,22 @@ function versi() {
   console.log(`tomas ${pkg.version}`);
 }
 
-const RENCANA = ["tambah", "perbaiki", "ubah", "hapus", "lihat", "hariini"];
+function tambah() {
+  if (!pesan) {
+    console.log(kuning("Pesannya belum diisi."));
+    console.log(`Contoh: ${hijau('tomas tambah "tambah fitur pengaturan"')}`);
+    return;
+  }
+  catat(pathCatatan(config), pemilik, "Tambah", pesan);
+  const tanggal = tanggalHariIni();
+  const jam = jamSekarang();
+  console.log(`Baik ${tebal(hijau(pemilik))}, saya catat: "${pesan}".`);
+  console.log(
+    `Sudah masuk ke catatan (${tanggal}, pukul ${jam}). Ketik ${hijau("tomas lihat")} untuk melihatnya.`
+  );
+}
+
+const RENCANA = ["perbaiki", "ubah", "hapus", "lihat", "hariini"];
 
 switch (perintah) {
   case "":
@@ -55,6 +71,9 @@ switch (perintah) {
     break;
   case "bantu":
     bantu();
+    break;
+  case "tambah":
+    tambah();
     break;
   case "--versi":
   case "-v":
@@ -64,7 +83,7 @@ switch (perintah) {
   default:
     if (RENCANA.includes(perintah)) {
       console.log(kuning(`Perintah "${perintah}" belum tersedia.`));
-      console.log("Ini bagian dari pengembangan tahap ke-3 dan ke-4.");
+      console.log("Ini bagian dari pengembangan tahap ke-4.");
       console.log(`Ketik ${hijau("tomas bantu")} untuk melihat menu.`);
     } else {
       console.log(`Perintah "${perintah}" tidak dikenal.`);
