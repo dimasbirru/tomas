@@ -22,7 +22,7 @@ Proyek masih dalam tahap awal (kerangka). Belum ada perintah yang berfungsi.
 | Step | Isi | Status |
 |------|-----|--------|
 | 1 | Kerangka proyek (repo, config, struktur, README) | Selesai |
-| 2 | Sapaan `tomas` + menu `tomas bantu` | Belum |
+| 2 | Sapaan `tomas` + menu `tomas bantu` | Selesai |
 | 3 | Mesin catatan `CATATAN.md` + `tomas tambah "..."` | Belum |
 | 4 | Keyword `perbaiki`, `ubah`, `hapus` + `lihat` & `hariini` | Belum |
 | 5 | Polesan output, auto-test, CHANGELOG | Belum |
