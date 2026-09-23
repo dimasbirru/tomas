@@ -15,7 +15,7 @@ Nama di atas ("Dimas") diambil dari `config.tomas.json`. Tiap pencatatan tersimp
 
 ## Status
 
-Proyek masih dalam tahap awal (kerangka). Belum ada perintah yang berfungsi.
+Pengembangan bertahap. Perintah yang sudah berfungsi: sapaan (`tomas`), menu (`tomas bantu`), dan cek versi (`tomas --versi`). Bagian catatan (Hari 3) masih dalam pengerjaan.
 
 ## Roadmap Pengerjaan
 
@@ -40,12 +40,39 @@ tomas/
 └── README.md
 ```
 
-## Cara Menjalankan (sementara)
+## Cara Memasang & Menjalankan
 
-Kerangka saja, jadi hanya memastikan Node terpasang:
+Butuh Node.js 18+ (`node --version`).
+
+### Pakai sebagai perintah global (disarankan)
+
+Setelah instalasi, perintah `tomas` bisa diketik dari direktori mana pun.
 
 ```bash
-node --version
+cd tomas
+npm link
+```
+
+Buka terminal baru, lalu coba:
+
+```bash
+tomas          # sapaan
+tomas bantu    # menu perintah
+tomas --versi  # versi
+```
+
+### Atau jalankan dari folder proyek saja
+
+```bash
+cd tomas
+node bin/tomas.js          # sapaan
+node bin/tomas.js bantu    # menu perintah
+```
+
+atau lewat script npm:
+
+```bash
+npm start
 ```
 
 ## Lisensi
