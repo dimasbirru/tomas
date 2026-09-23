@@ -15,7 +15,7 @@ Nama di atas ("Dimas") diambil dari `config.tomas.json`. Tiap pencatatan tersimp
 
 ## Status
 
-Pengembangan bertahap. Perintah yang sudah berfungsi: sapaan (`tomas`), menu (`tomas bantu`), dan cek versi (`tomas --versi`). Bagian catatan (Hari 3) masih dalam pengerjaan.
+Pengembangan bertahap. Perintah yang sudah berfungsi: sapaan (`tomas`), menu (`tomas bantu`), cek versi (`tomas --versi`), dan pencatatan (`tomas tambah "..."`). Keyword lain & tampilan riwayat menyusul di Hari 4.
 
 ## Roadmap Pengerjaan
 
@@ -23,7 +23,7 @@ Pengembangan bertahap. Perintah yang sudah berfungsi: sapaan (`tomas`), menu (`t
 |------|-----|--------|
 | 1 | Kerangka proyek (repo, config, struktur, README) | Selesai |
 | 2 | Sapaan `tomas` + menu `tomas bantu` | Selesai |
-| 3 | Mesin catatan `CATATAN.md` + `tomas tambah "..."` | Belum |
+| 3 | Mesin catatan `CATATAN.md` + `tomas tambah "..."` | Selesai |
 | 4 | Keyword `perbaiki`, `ubah`, `hapus` + `lihat` & `hariini` | Belum |
 | 5 | Polesan output, auto-test, CHANGELOG | Belum |
 | 6 | Dokumentasi lengkap + rilis `v1.0.0` | Belum |
