@@ -23,10 +23,20 @@ Pengembangan bertahap. Perintah yang sudah berfungsi: sapaan (`tomas`), menu (`t
 |------|-----|--------|
 | 1 | Kerangka proyek (repo, config, struktur, README) | Selesai |
 | 2 | Sapaan `tomas` + menu `tomas bantu` | Selesai |
+| 2.1 | Pasang tomas sebagai perintah global (`npm link`) | Selesai |
 | 3 | Mesin catatan `CATATAN.md` + `tomas tambah "..."` | Selesai |
 | 4 | Keyword `perbaiki`, `ubah`, `hapus` + `lihat` & `hariini` | Belum |
 | 5 | Polesan output, auto-test, CHANGELOG | Belum |
 | 6 | Dokumentasi lengkap + rilis `v1.0.0` | Belum |
+
+### Ide pengembangan lanjut
+
+| # | Ide | Status |
+|---|-----|--------|
+| 6 | Perlihatkan lokasi `CATATAN.md` yang dibaca tomas | Terbuka |
+| 7 | Mode interaktif (tanpa prefix `tomas` tiap perintah) | Terbuka |
+| 8 | Input suara untuk mencatat (voice-to-note) | Terbuka |
+| — | Auto-commit/push harian, rekap mingguan, ekspor JSON/CSV, tag & filter | Dipertimbangkan |
 
 ## Struktur Proyek
 
