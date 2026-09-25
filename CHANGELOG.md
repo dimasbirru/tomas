@@ -5,6 +5,20 @@ Semua perubahan penting pada tomas dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 Versi mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.3.0] - 2026-09-25
+
+### Ditambahkan
+- `cari "kata"` — temukan catatan yang berisi kata/kalimat (menampilkan nomor entri).
+- `hapus "sebagian pesan"` — hapus entri berdasarkan teks bila lupa nomornya. Cocok saat catatan sudah banyak.
+- **Pratinjau & konfirmasi**: sebelum menghapus, tomas menampilkan entri yang akan dihapus lalu menunggu `ya` untuk lanjut.
+- Bila banyak entri cocok, tomas menampilkan daftar pilihan lalu menerima nomor / `semua` / `batal`.
+- Input yang bukan pilihan saat konfirmasi otomatis **membatalkan** hapus, dan diperlakukan sebagai perintah biasa.
+
+### Perubahan
+- `hapus <nomor>` kini menampilkan pratinjau & konfirmasi (tidak langsung eksekusi).
+- Menu `bantu` diperbarui (baris `hapus <nomor|"teks">` dan `cari "kata"`).
+- Versi dinaikkan dari `1.2.0` menjadi `1.3.0`.
+
 ## [1.2.0] - 2026-09-25
 
 ### Ditambahkan

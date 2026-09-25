@@ -11,6 +11,7 @@ import {
   judulTanggal,
   jamSekarang,
   daftarEntri,
+  cariEntri,
   hapusEntri,
 } from "../src/core.js";
 
@@ -52,7 +53,8 @@ function bantu() {
       baris: [
         ["lihat", "lihat seluruh catatan bernomor"],
         ["hariini", "lihat catatan hari ini"],
-        ["hapus <nomor>", "hapus entri sesuai nomor (lihat dulu)"],
+        ['hapus <nomor|"teks">', "hapus entri (lihat nomor atau cari teks) — dikonfirmasi"],
+        ['cari "kata"', "temukan catatan berisi kata"],
       ],
     },
     {
@@ -75,7 +77,7 @@ function bantu() {
   }
   console.log(`\n${abu("Tips:")}`);
   console.log(abu(`  Ketik langsung, misalnya ${hijau('tambah "fitur"')} atau ${hijau("lihat")}.`));
-  console.log(abu(`  Untuk menghapus: ${hijau("lihat")} dulu, lalu ${hijau("hapus 2")}.`));
+  console.log(abu(`  Untuk menghapus: ${hijau('hapus 2')} atau ${hijau('hapus "sebagian pesan"')} — selalu dikonfirmasi.`));
 }
 
 function versi() {
@@ -130,21 +132,124 @@ function hariIni() {
   cetakDaftar(daftar);
 }
 
-function hapusDenganJawaban(nomor) {
-  if (!Number.isInteger(nomor) || nomor < 1) {
-    console.log(kuning("Nomor entri yang mau dihapus belum diisi."));
-    console.log(`Ketik ${hijau("lihat")} dulu untuk melihat nomor, lalu ${hijau("hapus 2")}.`);
+const YA = new Set(["y", "ya", "yes", "1", "lanjut", "hapus"]);
+
+function pratinjauEntri(e) {
+  return `${e.nomor}. (${e.tanggal}) ${e.jam} — **${e.tipe}**: ${e.pesan}`;
+}
+
+function hapusDenganJawaban(pesan) {
+  if (!pesan) {
+    console.log(kuning("Nomor atau teks entri yang mau dihapus belum diisi."));
+    console.log(`Contoh: ${hijau("hapus 5")} atau ${hijau('hapus "sebagian pesan"')}.`);
     return;
   }
-  const hasil = hapusEntri(fileCatatan, nomor);
-  if (hasil.ok) {
-    console.log(`Sudah kuhapus entri nomor ${tebal(hijau(String(nomor)))}.`);
-    console.log(`Ketik ${hijau("lihat")} untuk daftar terbaru.`);
-  } else if (hasil.alasan === "nomor-tidak-ditemukan") {
-    console.log(kuning(`Tidak ada entri nomor ${nomor}. Ketik ${hijau("lihat")} dulu.`));
-  } else {
-    console.log(kuning("Belum ada catatan sama sekali."));
+
+  const nomor = Number(pesan);
+  if (Number.isInteger(nomor) && nomor >= 1) {
+    const daftar = daftarEntri(fileCatatan);
+    const entri = daftar[nomor - 1];
+    if (!entri) {
+      console.log(kuning(`Tidak ada entri nomor ${nomor}. Ketik ${hijau("lihat")} dulu.`));
+      return;
+    }
+    console.log(`Entri nomor ${tebal(hijau(String(nomor)))} yang akan dihapus:`);
+    console.log(abu(pratinjauEntri({ nomor, ...entri })));
+    console.log(`Yakin hapus? Ketik ${hijau("ya")} untuk lanjut, atau lainnya untuk batal.`);
+    menunggu = { aksi: "konfirmasi-hapus", nomor };
+    return;
   }
+
+  const hasil = cariEntri(fileCatatan, pesan);
+  if (!hasil.length) {
+    console.log(kuning(`Tidak ada catatan yang berisi '${pesan}'.`));
+    console.log(`Cek ejaannya atau ketik ${hijau("lihat")}.`);
+    return;
+  }
+  if (hasil.length === 1) {
+    console.log(`Ditemukan 1 catatan berisi '${pesan}':`);
+    console.log(abu(pratinjauEntri(hasil[0])));
+    console.log(`Yakin hapus? Ketik ${hijau("ya")} untuk lanjut, atau lainnya untuk batal.`);
+    menunggu = { aksi: "konfirmasi-hapus", nomor: hasil[0].nomor };
+    return;
+  }
+  console.log(`Ditemukan ${tebal(hijau(String(hasil.length)))} catatan berisi '${pesan}':`);
+  for (const e of hasil) {
+    console.log(pratinjauEntri(e));
+  }
+  console.log(`Ketik nomor untuk menghapus satu, ${hijau("semua")} untuk semua, atau ${hijau("batal")}.`);
+  menunggu = { aksi: "pilih-entri", nomor: hasil.map((e) => e.nomor) };
+}
+
+function prosesJawaban(baris) {
+  if (!menunggu) return true;
+  const jawaban = baris.trim().toLowerCase();
+
+  if (menunggu.aksi === "konfirmasi-hapus") {
+    if (YA.has(jawaban)) {
+      const hasil = hapusEntri(fileCatatan, menunggu.nomor);
+      if (hasil.ok) {
+        console.log(`Sudah kuhapus entri nomor ${tebal(hijau(String(menunggu.nomor)))}.`);
+      } else {
+        console.log(kuning(`Entri nomor ${menunggu.nomor} tidak ditemukan saat eksekusi.`));
+      }
+    } else {
+      console.log("Batal, tidak ada yang dihapus.");
+    }
+    menunggu = null;
+    return true;
+  }
+
+  if (menunggu.aksi === "pilih-entri") {
+    if (jawaban === "semua" || jawaban === "all") {
+      let berhasil = 0;
+      for (const nomor of [...menunggu.nomor].sort((a, b) => b - a)) {
+        if (hapusEntri(fileCatatan, nomor).ok) berhasil += 1;
+      }
+      console.log(`Sudah kuhapus ${tebal(hijau(String(berhasil)))} entri.`);
+      menunggu = null;
+      return true;
+    }
+    if (jawaban === "batal" || jawaban === "tidak" || jawaban === "no" || jawaban === "n" || jawaban === "0") {
+      console.log("Batal, tidak ada yang dihapus.");
+      menunggu = null;
+      return true;
+    }
+    const nomor = Number(jawaban);
+    if (Number.isInteger(nomor) && menunggu.nomor.includes(nomor)) {
+      const hasil = hapusEntri(fileCatatan, nomor);
+      console.log(
+        hasil.ok
+          ? `Sudah kuhapus entri nomor ${tebal(hijau(String(nomor)))}.`
+          : kuning(`Entri nomor ${nomor} tidak ditemukan saat eksekusi.`)
+      );
+      menunggu = null;
+      return true;
+    }
+    console.log(abu(`Hapus dibatalkan — '${baris.trim()}' bukan salah satu pilihan.`));
+    menunggu = null;
+    return false;
+  }
+  return true;
+}
+
+function cariDenganJawaban(teks) {
+  if (!teks) {
+    console.log(kuning("Teks yang dicari belum diisi."));
+    console.log(`Contoh: ${hijau('cari "api"')}.`);
+    return;
+  }
+  const hasil = cariEntri(fileCatatan, teks);
+  if (!hasil.length) {
+    console.log(kuning(`Tidak ada catatan yang berisi '${teks}'.`));
+    console.log(`Cek ejaannya atau ketik ${hijau("lihat")}.`);
+    return;
+  }
+  console.log(`Ditemukan ${tebal(hijau(String(hasil.length)))} catatan berisi '${teks}':`);
+  for (const e of hasil) {
+    console.log(pratinjauEntri(e));
+  }
+  console.log(abu(`Mau hapus salah satunya? Gunakan ${hijau('hapus <nomor>')}.`));
 }
 
 function parseBaris(baris) {
@@ -154,6 +259,8 @@ function parseBaris(baris) {
   pesan = pesan.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1");
   return { perintah, pesan };
 }
+
+let menunggu = null;
 
 function jalankan(perintah, pesan) {
   switch (perintah) {
@@ -166,7 +273,10 @@ function jalankan(perintah, pesan) {
       catatDenganJawaban(TIPE[perintah], pesan);
       return;
     case "hapus":
-      hapusDenganJawaban(Number(pesan));
+      hapusDenganJawaban(pesan);
+      return;
+    case "cari":
+      cariDenganJawaban(pesan);
       return;
     case "lihat":
       lihat();
@@ -197,6 +307,19 @@ function modeInteraktif() {
   rl.prompt();
 
   rl.on("line", (baris) => {
+    if (menunggu) {
+      const diterima = prosesJawaban(baris);
+      if (!diterima) {
+        const { perintah: p2, pesan: m2 } = parseBaris(baris);
+        const hasil2 = jalankan(p2, m2);
+        if (hasil2 === "keluar") {
+          rl.close();
+          return;
+        }
+      }
+      rl.prompt();
+      return;
+    }
     const { perintah, pesan } = parseBaris(baris);
     const hasil = jalankan(perintah, pesan);
     if (hasil === "keluar") {

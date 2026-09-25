@@ -120,6 +120,19 @@ export function daftarEntri(path) {
   return hasil;
 }
 
+export function cariEntri(path, teks) {
+  const q = teks.trim().toLowerCase();
+  if (!q) return [];
+  return daftarEntri(path)
+    .map((e, i) => ({ nomor: i + 1, ...e }))
+    .filter(
+      (e) =>
+        e.pesan.toLowerCase().includes(q) ||
+        e.tipe.toLowerCase().includes(q) ||
+        e.tanggal.includes(q)
+    );
+}
+
 export function hapusEntri(path, nomor) {
   const teks = bacaCatatan(path);
   if (!teks) return { ok: false, alasan: "file-tidak-ada" };

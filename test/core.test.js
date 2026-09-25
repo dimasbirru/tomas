@@ -11,6 +11,7 @@ import {
   ambilCatatanHariIni,
   daftarEntri,
   hapusEntri,
+  cariEntri,
 } from "../src/core.js";
 
 function setup() {
@@ -122,5 +123,31 @@ test("hapusEntri membuang header tanggal bila seksi jadi kosong", () => {
   assert.ok(hasil.ok);
   const teks = readFileSync(path, "utf8");
   assert.ok(!teks.includes("## "), "header tanggal ikut terhapus bila kosong");
+  teardown(dir);
+});
+
+test("cariEntri menemukan entri berdasarkan teks (tidak peduli huruf besar/kecil)", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "belajar React");
+  catat(path, "Dimas", "Perbaiki", "bug login");
+  catat(path, "Dimas", "Ubah", "styling react page");
+  const hasil = cariEntri(path, "REACT");
+  assert.equal(hasil.length, 2);
+  assert.deepEqual(hasil.map((e) => e.nomor), [1, 3]);
+  teardown(dir);
+});
+
+test("cariEntri kembali kosong bila tidak ada yang cocok", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "menulis catatan");
+  assert.equal(cariEntri(path, "kapal").length, 0);
+  teardown(dir);
+});
+
+test("cariEntri juga mencocokkan tanggal", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "entri apapun");
+  const hasil = cariEntri(path, tanggalHariIni());
+  assert.ok(hasil.length >= 1);
   teardown(dir);
 });

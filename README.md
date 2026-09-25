@@ -20,14 +20,14 @@ Ketik `tomas` sekali, kamu masuk mode tomas. Perintah berikutnya diketik langsun
 - Sapaan pribadi dengan nama pemilik (dari `config.tomas.json`)
 - Mode interaktif: `tomas` masuk, ketik `keluar` untuk kembali ke terminal
 - Mencatat: `tambah`, `perbaiki`, `ubah`
-- Mengelola: `lihat` (seluruh, bernomor), `hariini`, dan `hapus <nomor>` yang benar-benar menghapus entri
+- Mengelola: `lihat` (seluruh, bernomor), `cari "kata"`, dan `hapus <nomor|"teks">` yang benar-benar menghapus entri dengan pratinjau & konfirmasi
 - Auto-create file catatan (dibuat otomatis saat pertama mencatat)
 - Tanpa dependensi eksternal — murni Node.js
 - Auto-test bawaan (`npm test`)
 
 ## Status
 
-Rilis v1.2.0. Semua perintah berfungsi dalam mode interaktif: sapaan (`tomas`), menu (`bantu`), cek versi (`versi`), pencatatan (`tambah`, `perbaiki`, `ubah`), dan riwayat (`lihat`, `hariini`), plus penghapusan entri (`hapus <nomor>`).
+Rilis v1.3.0. Semua perintah berfungsi dalam mode interaktif: sapaan (`tomas`), menu (`bantu`), cek versi (`versi`), pencatatan (`tambah`, `perbaiki`, `ubah`), riwayat (`lihat`, `hariini`), pencarian (`cari "kata"`), dan penghapusan aman (`hapus <nomor|"teks">`) dengan pratinjau & konfirmasi.
 
 ## Roadmap Pengerjaan
 
@@ -42,6 +42,7 @@ Rilis v1.2.0. Semua perintah berfungsi dalam mode interaktif: sapaan (`tomas`), 
 | 6 | Dokumentasi lengkap + rilis `v1.0.0` | Selesai |
 | 7 | Mode interaktif (tanpa prefix `tomas` tiap perintah) | Selesai |
 | 8 | `hapus` menghapus entri sungguhan (bernomor) | Selesai |
+| 9 | `cari`, `hapus` berbasis teks, dan konfirmasi sebelum hapus | Selesai |
 
 ### Ide pengembangan lanjut
 
@@ -107,14 +108,15 @@ MENCATAT
   ubah "pesan"       catat perubahan
 
 MENGELOLA
-  lihat              lihat seluruh catatan bernomor
-  hariini            lihat catatan hari ini
-  hapus <nomor>      hapus entri sesuai nomor (lihat dulu)
+  lihat                  lihat seluruh catatan bernomor
+  hariini                lihat catatan hari ini
+  hapus <nomor|"teks">   hapus entri (lihat nomor atau cari teks) — dikonfirmasi
+  cari "kata"            temukan catatan berisi kata
 
 LAINNYA
-  bantu              tampilkan menu ini
-  versi              versi tomas
-  keluar             keluar dari mode interaktif
+  bantu                  tampilkan menu ini
+  versi                  versi tomas
+  keluar                 keluar dari mode interaktif
 ```
 
 ### 2. Mencatat kegiatan
@@ -143,27 +145,58 @@ Seluruh catatan Dimas:
 3. 15.55 — **Ubah**: ganti warna tombol
 ```
 
-### 4. Menghapus entri
+### 4. Menghapus entri (pakai nomor)
 
-Nomor pada `lihat` dipakai untuk menghapus:
+Nomor pada `lihat` dipakai untuk menghapus — selalu ada pratinjau & konfirmasi:
 
 ```
 tomas> hapus 2
+Entri nomor 2 yang akan dihapus:
+2. (2026-09-25) 15.55 — **Perbaiki**: bug harga di cart
+Yakin hapus? Ketik ya untuk lanjut, atau lainnya untuk batal.
+tomas> ya
 Sudah kuhapus entri nomor 2.
 ```
 
-Cek hasilnya:
+### 4b. Menghapus entri kalau lupa nomornya (pakai teks)
+
+Lupa entri nomor berapa? Langsung hapus dengan sebagian isi pesannya:
 
 ```
-tomas> lihat
-Seluruh catatan Dimas:
-
-## 2026-09-25 (25 September 2026)
-1. 15.54 — **Tambah**: tambah fitur pengaturan
-2. 15.55 — **Ubah**: ganti warna tombol
+tomas> hapus "bug harga"
+Ditemukan 1 catatan berisi 'bug harga':
+3. (2026-09-25) 15.55 — **Perbaiki**: bug harga di cart
+Yakin hapus? Ketik ya untuk lanjut, atau lainnya untuk batal.
+tomas> ya
+Sudah kuhapus entri nomor 3.
 ```
 
-### 5. Melihat catatan hari ini
+Kalau yang cocok banyak, tomas menampilkan pilihan:
+
+```
+tomas> hapus "fitur"
+Ditemukan 3 catatan berisi 'fitur':
+1. (2026-09-25) 15.54 — **Tambah**: tambah fitur pengaturan
+2. (2026-09-25) 15.57 — **Ubah**: ubah fitur harga
+3. (2026-09-25) 16.02 — **Hapus**: lepas fitur cadangan
+Ketik nomor untuk menghapus satu, semua untuk semua, atau batal.
+tomas> semua
+Sudah kuhapus 3 entri.
+```
+
+Ketik selain nomor (mis. `lihat` atau `keluar`) untuk membatalkan pilihan itu.
+
+### 5. Mencari catatan
+
+```
+tomas> cari "login"
+Ditemukan 2 catatan berisi 'login':
+3. (2026-09-25) 15.58 — **Perbaiki**: bug login
+7. (2026-09-25) 16.30 — **Tambah**: bikin halaman login
+Mau hapus salah satunya? Gunakan hapus <nomor>.
+```
+
+### 6. Melihat catatan hari ini
 
 ```
 tomas> hariini
@@ -172,14 +205,14 @@ Catatan hari ini (2026-09-25, 25 September 2026):
 1. 15.54 — **Tambah**: tambah fitur pengaturan
 ```
 
-### 6. Keluar
+### 7. Keluar
 
 ```
 tomas> keluar
 Sampai jumpa Dimas, sampai jumpa lagi!
 ```
 
-### 7. Lokasi file catatan
+### 8. Lokasi file catatan
 
 Catatan tersimpan (dan dibuat otomatis bila belum ada) di:
 
@@ -206,7 +239,7 @@ Jalankan auto-test (tanpa dependensi eksternal):
 npm test
 ```
 
-Hasil akhir diharapkan semua lulus (`pass`). Test mencakup format tanggal, pembuatan file catatan, pengelompokan per tanggal, pembacaan entri (`lihat`), serta penghapusan entri (`hapus`).
+Hasil akhir diharapkan semua lulus (`pass`). Test mencakup format tanggal, pembuatan file catatan, pengelompokan per tanggal, pembacaan entri (`lihat`), pencarian teks (`cari`), serta penghapusan entri (`hapus`).
 
 ## Kontribusi
 
