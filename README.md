@@ -107,6 +107,31 @@ Aku tomas, pencatat kerjaan harianmu.
 Ketik tomas bantu untuk daftar perintah.
 ```
 
+### 0. Mode interaktif (tanpa `tomas` di tiap perintah)
+
+Cukup ketik `tomas` sekali — kamu masuk mode tomas. Perintah berikutnya cukup langsung, tanpa prefix:
+
+```bash
+$ tomas
+Halo Dimas, selamat datang!
+Kamu sedang dalam mode tomas. Ketik bantu untuk daftar perintah, keluar untuk kembali ke terminal.
+
+tomas> tambah "catatan hari ini"
+Baik Dimas, saya catat: "catatan hari ini".
+Sudah masuk ke catatan (2026-09-25, pukul 16.47).
+
+tomas> hariini
+Catatan hari ini (2026-09-25, 25 September 2026):
+## 2026-09-25 (25 September 2026)
+
+- 16.47 — **Tambah**: catatan hari ini
+
+tomas> keluar
+Sampai jumpa Dimas, sampai jumpa lagi!
+```
+
+Perintah sekali-pakai (`tomas tambah "..."`, `tomas lihat`, dst.) tetap tersedia.
+
 ### 2. Mencatat kegiatan
 
 ```bash

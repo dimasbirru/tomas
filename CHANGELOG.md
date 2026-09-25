@@ -5,6 +5,16 @@ Semua perubahan penting pada tomas dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 Versi mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.1.0] - 2026-09-25
+
+### Ditambahkan
+- **Mode interaktif**: ketik `tomas` sekali, lalu perintah cukup langsung (`tambah "..."`, `lihat`, `hariini`, `keluar`) tanpa prefix `tomas`.
+- Perintah `keluar` / `exit` untuk kembali ke terminal.
+- Dokumentasi mode interaktif di README.
+
+### Perubahan
+- Versi dinaikkan dari `1.0.0` menjadi `1.1.0`.
+
 ## [1.0.0] - 2026-09-25
 
 Rilis stabil pertama — dokumentasi lengkap dan pemaketan final.

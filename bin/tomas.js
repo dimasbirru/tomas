@@ -2,6 +2,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { createInterface } from "node:readline";
 import {
   muatConfig,
   pathCatatan,
@@ -17,15 +18,6 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const config = muatConfig();
 const pemilik = config.pemilik || "Dimas";
 const args = process.argv.slice(2);
-const perintah = args[0] ?? "";
-const pesan = args.slice(1).join(" ").trim();
-
-const c = (teks, kode) => (process.stdout.isTTY ? `\x1b[${kode}m${teks}\x1b[0m` : teks);
-const hijau = (t) => c(t, "32");
-const kuning = (t) => c(t, "33");
-const abu = (t) => c(t, "90");
-const tebal = (t) => c(t, "1");
-
 const fileCatatan = pathCatatan(config);
 
 const TIPE = {
@@ -35,30 +27,41 @@ const TIPE = {
   hapus: "Hapus",
 };
 
-function sapaan() {
+const c = (teks, kode) => (process.stdout.isTTY ? `\x1b[${kode}m${teks}\x1b[0m` : teks);
+const hijau = (t) => c(t, "32");
+const kuning = (t) => c(t, "33");
+const abu = (t) => c(t, "90");
+const tebal = (t) => c(t, "1");
+
+function sapaan(modeInteraktif) {
   console.log(`Halo ${tebal(hijau(pemilik))}, selamat datang!`);
   console.log("Aku tomas, pencatat kerjaan harianmu.");
-  console.log(`Ketik ${hijau("tomas bantu")} untuk daftar perintah.`);
+  if (modeInteraktif) {
+    console.log(`Kamu sedang dalam mode tomas. Ketik ${hijau("bantu")} untuk daftar perintah, ${hijau("keluar")} untuk kembali ke terminal.`);
+  } else {
+    console.log(`Ketik ${hijau("tomas bantu")} untuk daftar perintah.`);
+  }
 }
 
 function bantu() {
   const baris = [
-    ['tomas tambah "pesan"', "catat pekerjaan yang ditambahkan"],
-    ['tomas perbaiki "pesan"', "catat perbaikan"],
-    ['tomas ubah "pesan"', "catat perubahan"],
-    ['tomas hapus "pesan"', "catat penghapusan"],
-    ["tomas lihat", "lihat seluruh catatan"],
-    ["tomas hariini", "lihat catatan hari ini"],
-    ["tomas bantu", "tampilkan menu ini"],
-    ["tomas --versi", "versi tomas"],
+    ['tambah "pesan"', "catat pekerjaan yang ditambahkan"],
+    ['perbaiki "pesan"', "catat perbaikan"],
+    ['ubah "pesan"', "catat perubahan"],
+    ['hapus "pesan"', "catat penghapusan"],
+    ["lihat", "lihat seluruh catatan"],
+    ["hariini", "lihat catatan hari ini"],
+    ["bantu", "tampilkan menu ini"],
+    ["keluar", "keluar dari mode interaktif"],
+    ["versi", "versi tomas"],
   ];
   const lebar = Math.max(...baris.map(([k]) => k.length));
   console.log(`Halo ${hijau(pemilik)}, ini daftar perintah tomas:`);
   for (const [k, v] of baris) {
     console.log(`  ${hijau(k.padEnd(lebar))}   ${v}`);
   }
-  console.log(abu("\nCatatan disimpan di file CATATAN.md pada folder proyek tomas."));
-  console.log(abu("Semua perintah di atas sudah aktif. Selamat mencatat!"));
+  console.log(abu("\nDalam mode satu-perintah, tambahkan 'tomas' di depan, misalnya:"));
+  console.log(abu(hijau('tomas tambah "tambah fitur pengaturan"')));
 }
 
 function versi() {
@@ -66,25 +69,23 @@ function versi() {
   console.log(`tomas ${pkg.version}`);
 }
 
-function catatDenganJawaban() {
+function catatDenganJawaban(tipe, pesan) {
   if (!pesan) {
     console.log(kuning("Pesannya belum diisi."));
-    console.log(`Contoh: ${hijau(`tomas ${perintah} "deskripsi kegiatan"`)}`);
+    console.log(`Contoh: ${hijau('tambah "deskripsi kegiatan"')}`);
     return;
   }
-  catat(fileCatatan, pemilik, TIPE[perintah], pesan);
+  catat(fileCatatan, pemilik, tipe, pesan);
   const tanggal = tanggalHariIni();
   const jam = jamSekarang();
   console.log(`Baik ${tebal(hijau(pemilik))}, saya catat: "${pesan}".`);
-  console.log(
-    `Sudah masuk ke catatan (${tanggal}, pukul ${jam}). Ketik ${hijau("tomas lihat")} untuk melihatnya.`
-  );
+  console.log(`Sudah masuk ke catatan (${tanggal}, pukul ${jam}). Ketik ${hijau("lihat")} untuk melihatnya.`);
 }
 
 function tampilkanCatatan(teks, kosong, berjudul) {
   if (!teks) {
     console.log(kuning(kosong));
-    console.log(`Ketik ${hijau('tomas tambah "pesan"')} untuk mulai mencatat.`);
+    console.log(`Ketik ${hijau('tambah "pesan"')} untuk mulai mencatat.`);
     return;
   }
   console.log(hijau(berjudul));
@@ -108,31 +109,74 @@ function hariIni() {
   );
 }
 
-switch (perintah) {
-  case "":
-    sapaan();
-    break;
-  case "bantu":
-    bantu();
-    break;
-  case "tambah":
-  case "perbaiki":
-  case "ubah":
-  case "hapus":
-    catatDenganJawaban();
-    break;
-  case "lihat":
-    lihat();
-    break;
-  case "hariini":
-    hariIni();
-    break;
-  case "--versi":
-  case "-v":
-  case "versi":
-    versi();
-    break;
-  default:
-    console.log(`Perintah "${perintah}" tidak dikenal.`);
-    bantu();
+function parseBaris(baris) {
+  const m = baris.trim().match(/^(\S+)(?:\s+([\s\S]*))?$/);
+  const perintah = m ? m[1] : "";
+  let pesan = m && m[2] ? m[2].trim() : "";
+  pesan = pesan.replace(/^"(.*)"$/, "$1").replace(/^'(.*)'$/, "$1");
+  return { perintah, pesan };
+}
+
+function jalankan(perintah, pesan) {
+  switch (perintah) {
+    case "bantu":
+      bantu();
+      return;
+    case "tambah":
+    case "perbaiki":
+    case "ubah":
+    case "hapus":
+      catatDenganJawaban(TIPE[perintah], pesan);
+      return;
+    case "lihat":
+      lihat();
+      return;
+    case "hariini":
+      hariIni();
+      return;
+    case "versi":
+    case "--versi":
+    case "-v":
+      versi();
+      return;
+    case "keluar":
+    case "exit":
+      return "keluar";
+    case "":
+      return;
+    default:
+      console.log(`Perintah "${perintah}" tidak dikenal.`);
+      bantu();
+  }
+}
+
+function modeInteraktif() {
+  sapaan(true);
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  rl.setPrompt("tomas> ");
+  rl.prompt();
+
+  rl.on("line", (baris) => {
+    const { perintah, pesan } = parseBaris(baris);
+    const hasil = jalankan(perintah, pesan);
+    if (hasil === "keluar") {
+      rl.close();
+      return;
+    }
+    rl.prompt();
+  });
+
+  const pamit = () => {
+    console.log(`Sampai jumpa ${pemilik}, sampai jumpa lagi!`);
+    process.exit(0);
+  };
+  rl.on("close", pamit);
+  process.on("SIGINT", pamit);
+}
+
+const { perintah, pesan } = parseBaris(args.join(" "));
+if (perintah === "") {
+  modeInteraktif();
+} else {
+  jalankan(perintah, pesan);
 }
