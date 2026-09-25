@@ -5,6 +5,18 @@ Semua perubahan penting pada tomas dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 Versi mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.0.0] - 2026-09-25
+
+Rilis stabil pertama — dokumentasi lengkap dan pemaketan final.
+
+### Ditambahkan
+- Bagian "Contoh Penggunaan", "Fitur", "Konfigurasi", dan "Kontribusi" di README.
+- Berkas `CONTRIBUTING.md` untuk panduan berkontribusi.
+- Struktur proyek diperbarui (mencakup `test/` dan `CHANGELOG.md`).
+
+### Perubahan
+- Versi dinaikkan dari `0.1.0` menjadi `1.0.0`.
+
 ## [0.1.0] - 2026-09-25
 
 Versi awal tomas (pengembangan bertahap Hari 1–5).
@@ -21,4 +33,3 @@ Versi awal tomas (pengembangan bertahap Hari 1–5).
 
 ### Catatan
 - `CATATAN.md` adalah file hasil catatan pribadi dan dimasukkan ke `.gitignore`.
-- Pekerjaan Hari 6 (dokumentasi final, `CONTRIBUTING.md`, rilis `v1.0.0`) masih berjalan.
