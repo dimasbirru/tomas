@@ -26,7 +26,7 @@ Pengembangan bertahap. Perintah yang sudah berfungsi: sapaan (`tomas`), menu (`t
 | 2.1 | Pasang tomas sebagai perintah global (`npm link`) | Selesai |
 | 3 | Mesin catatan `CATATAN.md` + `tomas tambah "..."` | Selesai |
 | 4 | Keyword `perbaiki`, `ubah`, `hapus` + `lihat` & `hariini` | Selesai |
-| 5 | Polesan output, auto-test, CHANGELOG | Belum |
+| 5 | Polesan output, auto-test, CHANGELOG | Selesai |
 | 6 | Dokumentasi lengkap + rilis `v1.0.0` | Belum |
 
 ### Ide pengembangan lanjut
@@ -84,6 +84,16 @@ atau lewat script npm:
 ```bash
 npm start
 ```
+
+## Pengujian
+
+Jalankan auto-test (tanpa dependensi eksternal):
+
+```bash
+npm test
+```
+
+Hasil akhir diharapkan semua lulus (`pass`). Test mencakup format tanggal, pembuatan file catatan, pengelompokan per tanggal, serta riwayat `lihat`/`hariini`.
 
 ## Lisensi
 
