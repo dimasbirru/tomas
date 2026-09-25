@@ -78,3 +78,21 @@ export function catat(path, pemilik, tipe, isi) {
   }
   return `\`${tipe}\` "${isi}"`;
 }
+
+export function ambilCatatan(path) {
+  const teks = bacaCatatan(path);
+  if (!teks) return null;
+  const baris = teks.split("\n").filter(Boolean).join("\n");
+  return baris;
+}
+
+export function ambilCatatanHariIni(path) {
+  const teks = bacaCatatan(path);
+  if (!teks) return null;
+  const judul = `## ${tanggalHariIni()}`;
+  const baris = teks.split("\n");
+  const idx = baris.findIndex((b) => b.startsWith(judul));
+  if (idx === -1) return null;
+  const bagian = baris.slice(idx).join("\n");
+  return bagian.replace(/\s+$/, "");
+}

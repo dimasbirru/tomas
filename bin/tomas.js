@@ -2,7 +2,16 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { muatConfig, pathCatatan, catat, tanggalHariIni, jamSekarang } from "../src/core.js";
+import {
+  muatConfig,
+  pathCatatan,
+  catat,
+  tanggalHariIni,
+  judulTanggal,
+  jamSekarang,
+  ambilCatatan,
+  ambilCatatanHariIni,
+} from "../src/core.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const config = muatConfig();
@@ -17,6 +26,15 @@ const kuning = (t) => c(t, "33");
 const abu = (t) => c(t, "90");
 const tebal = (t) => c(t, "1");
 
+const fileCatatan = pathCatatan(config);
+
+const TIPE = {
+  tambah: "Tambah",
+  perbaiki: "Perbaiki",
+  ubah: "Ubah",
+  hapus: "Hapus",
+};
+
 function sapaan() {
   console.log(`Halo ${tebal(hijau(pemilik))}, selamat datang!`);
   console.log("Aku tomas, pencatat kerjaan harianmu.");
@@ -29,9 +47,9 @@ function bantu() {
     ['tomas perbaiki "pesan"', "catat perbaikan"],
     ['tomas ubah "pesan"', "catat perubahan"],
     ['tomas hapus "pesan"', "catat penghapusan"],
-    ['tomas lihat', "lihat seluruh catatan"],
-    ['tomas hariini', "lihat catatan hari ini"],
-    ['tomas bantu', "tampilkan menu ini"],
+    ["tomas lihat", "lihat seluruh catatan"],
+    ["tomas hariini", "lihat catatan hari ini"],
+    ["tomas bantu", "tampilkan menu ini"],
     ["tomas --versi", "versi tomas"],
   ];
   const lebar = Math.max(...baris.map(([k]) => k.length));
@@ -39,8 +57,8 @@ function bantu() {
   for (const [k, v] of baris) {
     console.log(`  ${hijau(k.padEnd(lebar))}   ${v}`);
   }
-  console.log(abu("\nCatatan: perintah selain bantu/menunya aktif di tahap ke-3 dan ke-4,"));
-  console.log(abu("lihat daftar lengkap di README (Roadmap Pengerjaan)."));
+  console.log(abu("\nCatatan disimpan di file CATATAN.md pada folder proyek tomas."));
+  console.log(abu("Semua perintah di atas sudah aktif. Selamat mencatat!"));
 }
 
 function versi() {
@@ -48,13 +66,13 @@ function versi() {
   console.log(`tomas ${pkg.version}`);
 }
 
-function tambah() {
+function catatDenganJawaban() {
   if (!pesan) {
     console.log(kuning("Pesannya belum diisi."));
-    console.log(`Contoh: ${hijau('tomas tambah "tambah fitur pengaturan"')}`);
+    console.log(`Contoh: ${hijau(`tomas ${perintah} "deskripsi kegiatan"`)}`);
     return;
   }
-  catat(pathCatatan(config), pemilik, "Tambah", pesan);
+  catat(fileCatatan, pemilik, TIPE[perintah], pesan);
   const tanggal = tanggalHariIni();
   const jam = jamSekarang();
   console.log(`Baik ${tebal(hijau(pemilik))}, saya catat: "${pesan}".`);
@@ -63,7 +81,32 @@ function tambah() {
   );
 }
 
-const RENCANA = ["perbaiki", "ubah", "hapus", "lihat", "hariini"];
+function tampilkanCatatan(teks, kosong, berjudul) {
+  if (!teks) {
+    console.log(kuning(kosong));
+    console.log(`Ketik ${hijau('tomas tambah "pesan"')} untuk mulai mencatat.`);
+    return;
+  }
+  console.log(hijau(berjudul));
+  console.log(teks);
+}
+
+function lihat() {
+  tampilkanCatatan(
+    ambilCatatan(fileCatatan),
+    "Belum ada catatan sama sekali.",
+    `Seluruh catatan ${tebal(pemilik)}:`
+  );
+}
+
+function hariIni() {
+  const tanggal = tanggalHariIni();
+  tampilkanCatatan(
+    ambilCatatanHariIni(fileCatatan),
+    `Belum ada catatan untuk hari ini (${tanggal}).`,
+    `Catatan hari ini (${tanggal}, ${judulTanggal(tanggal)}):`
+  );
+}
 
 switch (perintah) {
   case "":
@@ -73,7 +116,16 @@ switch (perintah) {
     bantu();
     break;
   case "tambah":
-    tambah();
+  case "perbaiki":
+  case "ubah":
+  case "hapus":
+    catatDenganJawaban();
+    break;
+  case "lihat":
+    lihat();
+    break;
+  case "hariini":
+    hariIni();
     break;
   case "--versi":
   case "-v":
@@ -81,12 +133,6 @@ switch (perintah) {
     versi();
     break;
   default:
-    if (RENCANA.includes(perintah)) {
-      console.log(kuning(`Perintah "${perintah}" belum tersedia.`));
-      console.log("Ini bagian dari pengembangan tahap ke-4.");
-      console.log(`Ketik ${hijau("tomas bantu")} untuk melihat menu.`);
-    } else {
-      console.log(`Perintah "${perintah}" tidak dikenal.`);
-      bantu();
-    }
+    console.log(`Perintah "${perintah}" tidak dikenal.`);
+    bantu();
 }
