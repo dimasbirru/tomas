@@ -43,25 +43,50 @@ function sapaan(modeInteraktif) {
   }
 }
 
-function bantu() {
-  const baris = [
-    ['tambah "pesan"', "catat pekerjaan yang ditambahkan"],
-    ['perbaiki "pesan"', "catat perbaikan"],
-    ['ubah "pesan"', "catat perubahan"],
-    ['hapus "pesan"', "catat penghapusan"],
-    ["lihat", "lihat seluruh catatan"],
-    ["hariini", "lihat catatan hari ini"],
-    ["bantu", "tampilkan menu ini"],
-    ["keluar", "keluar dari mode interaktif"],
-    ["versi", "versi tomas"],
+function bantu(interaktif) {
+  const kelompok = [
+    {
+      judul: "Mencatat",
+      baris: [
+        ['tambah "pesan"', "catat kegiatan yang ditambahkan"],
+        ['perbaiki "pesan"', "catat perbaikan"],
+        ['ubah "pesan"', "catat perubahan"],
+        ['hapus "pesan"', "catat penghapusan"],
+      ],
+    },
+    {
+      judul: "Melihat",
+      baris: [
+        ["lihat", "lihat seluruh catatan"],
+        ["hariini", "lihat catatan hari ini"],
+      ],
+    },
+    {
+      judul: "Lainnya",
+      baris: [
+        ["bantu", "tampilkan menu ini"],
+        ["versi", "versi tomas"],
+        ...(interaktif ? [["keluar", "keluar dari mode interaktif"]] : []),
+      ],
+    },
   ];
-  const lebar = Math.max(...baris.map(([k]) => k.length));
+
+  const lebar = Math.max(...kelompok.flatMap((k) => k.baris).map(([k]) => k.length));
   console.log(`Halo ${hijau(pemilik)}, ini daftar perintah tomas:`);
-  for (const [k, v] of baris) {
-    console.log(`  ${hijau(k.padEnd(lebar))}   ${v}`);
+  for (const { judul, baris } of kelompok) {
+    console.log(`\n${tebal(hijau(judul.toUpperCase()))}`);
+    for (const [k, v] of baris) {
+      console.log(`  ${hijau(k.padEnd(lebar))}   ${v}`);
+    }
   }
-  console.log(abu("\nDalam mode satu-perintah, tambahkan 'tomas' di depan, misalnya:"));
-  console.log(abu(hijau('tomas tambah "tambah fitur pengaturan"')));
+  console.log(`\n${abu("Tips:")}`);
+  if (interaktif) {
+    console.log(abu(`  Ketik langsung, misalnya ${hijau('tambah "fitur"')} atau ${hijau("lihat")}.`));
+    console.log(abu(`  Ketik ${hijau("keluar")} untuk kembali ke terminal.`));
+  } else {
+    console.log(abu(`  Ketik ${hijau("tomas bantu")} untuk satu perintah sekaligus.`));
+    console.log(abu(`  Masuk mode interaktif dengan ${hijau("tomas")}, lalu ketik langsung: ${hijau('tambah "fitur"')}.`));
+  }
 }
 
 function versi() {
@@ -117,10 +142,10 @@ function parseBaris(baris) {
   return { perintah, pesan };
 }
 
-function jalankan(perintah, pesan) {
+function jalankan(perintah, pesan, interaktif = false) {
   switch (perintah) {
     case "bantu":
-      bantu();
+      bantu(interaktif);
       return;
     case "tambah":
     case "perbaiki":
@@ -146,7 +171,7 @@ function jalankan(perintah, pesan) {
       return;
     default:
       console.log(`Perintah "${perintah}" tidak dikenal.`);
-      bantu();
+      bantu(interaktif);
   }
 }
 
@@ -158,7 +183,7 @@ function modeInteraktif() {
 
   rl.on("line", (baris) => {
     const { perintah, pesan } = parseBaris(baris);
-    const hasil = jalankan(perintah, pesan);
+    const hasil = jalankan(perintah, pesan, true);
     if (hasil === "keluar") {
       rl.close();
       return;
