@@ -5,45 +5,49 @@ Pencatat log kerja harian pribadi, langsung dari terminal.
 ```
 $ tomas
 Halo Dimas, selamat datang!
+Aku tomas, pencatat kerjaan harianmu.
+Ketik bantu untuk daftar perintah, keluar untuk kembali ke terminal.
 
-$ tomas tambah "tambah fitur pengaturan"
-Baik Dimas, saya catat: tambah fitur pengaturan
-Sudah masuk ke catatan.
+tomas> tambah "tambah fitur pengaturan"
+Baik Dimas, saya catat: "tambah fitur pengaturan".
+Sudah masuk ke catatan (2026-09-25, pukul 15.54).
 ```
 
-Nama di atas ("Dimas") diambil dari `config.tomas.json`. Tiap pencatatan tersimpan rapi di file `CATATAN.md`, dikelompokkan per tanggal dan jam.
+Ketik `tomas` sekali, kamu masuk mode tomas. Perintah berikutnya diketik langsung, tanpa prefix. Nama di atas ("Dimas") diambil dari `config.tomas.json`. Tiap pencatatan tersimpan rapi di file `CATATAN.md`, dikelompokkan per tanggal dan jam.
 
 ## Fitur
 
 - Sapaan pribadi dengan nama pemilik (dari `config.tomas.json`)
-- 4 jenis catatan: `tambah`, `perbaiki`, `ubah`, `hapus`
-- Riwayat lengkap (`tomas lihat`) dan riwayat hari ini (`tomas hariini`)
+- Mode interaktif: `tomas` masuk, ketik `keluar` untuk kembali ke terminal
+- Mencatat: `tambah`, `perbaiki`, `ubah`
+- Mengelola: `lihat` (seluruh, bernomor), `hariini`, dan `hapus <nomor>` yang benar-benar menghapus entri
 - Auto-create file catatan (dibuat otomatis saat pertama mencatat)
 - Tanpa dependensi eksternal — murni Node.js
 - Auto-test bawaan (`npm test`)
 
 ## Status
 
-Rilis v1.0.0. Semua perintah inti berfungsi: sapaan (`tomas`), menu (`tomas bantu`), cek versi (`tomas --versi`), pencatatan (`tambah`, `perbaiki`, `ubah`, `hapus`), serta riwayat (`lihat`, `hariini`).
+Rilis v1.2.0. Semua perintah berfungsi dalam mode interaktif: sapaan (`tomas`), menu (`bantu`), cek versi (`versi`), pencatatan (`tambah`, `perbaiki`, `ubah`), dan riwayat (`lihat`, `hariini`), plus penghapusan entri (`hapus <nomor>`).
 
 ## Roadmap Pengerjaan
 
 | Step | Isi | Status |
 |------|-----|--------|
 | 1 | Kerangka proyek (repo, config, struktur, README) | Selesai |
-| 2 | Sapaan `tomas` + menu `tomas bantu` | Selesai |
+| 2 | Sapaan `tomas` + menu `bantu` | Selesai |
 | 2.1 | Pasang tomas sebagai perintah global (`npm link`) | Selesai |
-| 3 | Mesin catatan `CATATAN.md` + `tomas tambah "..."` | Selesai |
+| 3 | Mesin catatan `CATATAN.md` + `tambah "..."` | Selesai |
 | 4 | Keyword `perbaiki`, `ubah`, `hapus` + `lihat` & `hariini` | Selesai |
 | 5 | Polesan output, auto-test, CHANGELOG | Selesai |
 | 6 | Dokumentasi lengkap + rilis `v1.0.0` | Selesai |
+| 7 | Mode interaktif (tanpa prefix `tomas` tiap perintah) | Selesai |
+| 8 | `hapus` menghapus entri sungguhan (bernomor) | Selesai |
 
 ### Ide pengembangan lanjut
 
 | # | Ide | Status |
 |---|-----|--------|
 | 6 | Perlihatkan lokasi `CATATAN.md` yang dibaca tomas | Terbuka |
-| 7 | Mode interaktif (tanpa prefix `tomas` tiap perintah) | Terbuka |
 | 8 | Input suara untuk mencatat (voice-to-note) | Terbuka |
 | — | Auto-commit/push harian, rekap mingguan, ekspor JSON/CSV, tag & filter | Dipertimbangkan |
 
@@ -74,101 +78,108 @@ cd tomas
 npm link
 ```
 
-Buka terminal baru, lalu coba:
+Buka terminal baru, lalu ketik:
 
 ```bash
-tomas          # sapaan
-tomas bantu    # menu perintah
-tomas --versi  # versi
+tomas   # masuk mode tomas
 ```
 
 ### Atau jalankan dari folder proyek saja
 
 ```bash
 cd tomas
-node bin/tomas.js          # sapaan
-node bin/tomas.js bantu    # menu perintah
-```
-
-atau lewat script npm:
-
-```bash
-npm start
+node bin/tomas.js
 ```
 
 ## Contoh Penggunaan
 
+Semua contoh ini di dalam mode interaktif (jalankan `tomas` dulu).
+
 ### 1. Berkenalan dengan tomas
 
-```bash
-$ tomas
-Halo Dimas, selamat datang!
-Aku tomas, pencatat kerjaan harianmu.
-Ketik tomas bantu untuk daftar perintah.
+```
+tomas> bantu
+Halo Dimas, ini daftar perintah tomas:
+
+MENCATAT
+  tambah "pesan"     catat kegiatan yang ditambahkan
+  perbaiki "pesan"   catat perbaikan
+  ubah "pesan"       catat perubahan
+
+MENGELOLA
+  lihat              lihat seluruh catatan bernomor
+  hariini            lihat catatan hari ini
+  hapus <nomor>      hapus entri sesuai nomor (lihat dulu)
+
+LAINNYA
+  bantu              tampilkan menu ini
+  versi              versi tomas
+  keluar             keluar dari mode interaktif
 ```
 
-### 0. Mode interaktif (tanpa `tomas` di tiap perintah)
+### 2. Mencatat kegiatan
 
-Cukup ketik `tomas` sekali — kamu masuk mode tomas. Perintah berikutnya cukup langsung, tanpa prefix:
+```
+tomas> tambah "tambah fitur pengaturan"
+Baik Dimas, saya catat: "tambah fitur pengaturan".
+Sudah masuk ke catatan (2026-09-25, pukul 15.54).
 
-```bash
-$ tomas
-Halo Dimas, selamat datang!
-Kamu sedang dalam mode tomas. Ketik bantu untuk daftar perintah, keluar untuk kembali ke terminal.
+tomas> perbaiki "bug harga di cart"
+Baik Dimas, saya catat: "bug harga di cart".
 
-tomas> tambah "catatan hari ini"
-Baik Dimas, saya catat: "catatan hari ini".
-Sudah masuk ke catatan (2026-09-25, pukul 16.47).
+tomas> ubah "ganti warna tombol"
+Baik Dimas, saya catat: "ganti warna tombol".
+```
 
+### 3. Melihat seluruh catatan (bernomor)
+
+```
+tomas> lihat
+Seluruh catatan Dimas:
+
+## 2026-09-25 (25 September 2026)
+1. 15.54 — **Tambah**: tambah fitur pengaturan
+2. 15.55 — **Perbaiki**: bug harga di cart
+3. 15.55 — **Ubah**: ganti warna tombol
+```
+
+### 4. Menghapus entri
+
+Nomor pada `lihat` dipakai untuk menghapus:
+
+```
+tomas> hapus 2
+Sudah kuhapus entri nomor 2.
+```
+
+Cek hasilnya:
+
+```
+tomas> lihat
+Seluruh catatan Dimas:
+
+## 2026-09-25 (25 September 2026)
+1. 15.54 — **Tambah**: tambah fitur pengaturan
+2. 15.55 — **Ubah**: ganti warna tombol
+```
+
+### 5. Melihat catatan hari ini
+
+```
 tomas> hariini
 Catatan hari ini (2026-09-25, 25 September 2026):
 ## 2026-09-25 (25 September 2026)
+1. 15.54 — **Tambah**: tambah fitur pengaturan
+```
 
-- 16.47 — **Tambah**: catatan hari ini
+### 6. Keluar
 
+```
 tomas> keluar
 Sampai jumpa Dimas, sampai jumpa lagi!
 ```
 
-Perintah sekali-pakai (`tomas tambah "..."`, `tomas lihat`, dst.) tetap tersedia.
-
-### 2. Mencatat kegiatan
-
-```bash
-$ tomas tambah "tambah fitur pengaturan"
-Baik Dimas, saya catat: "tambah fitur pengaturan".
-Sudah masuk ke catatan (2026-09-25, pukul 15.54). Ketik tomas lihat untuk melihatnya.
-
-$ tomas perbaiki "bug harga di cart"
-$ tomas ubah "ganti warna tombol"
-$ tomas hapus "hapus fitur cadangan"
-```
-
-### 3. Melihat catatan hari ini
-
-```bash
-$ tomas hariini
-Catatan hari ini (2026-09-25, 25 September 2026):
-## 2026-09-25 (25 September 2026)
-
-- 15.54 — **Tambah**: tambah fitur pengaturan
-- 15.54 — **Perbaiki**: bug harga di cart
-- 15.54 — **Ubah**: ganti warna tombol
-- 15.54 — **Hapus**: hapus fitur cadangan
-```
-
-### 4. Melihat seluruh catatan
-
-```bash
-$ tomas lihat
-Seluruh catatan Dimas:
-## 2026-09-25 (25 September 2026)
-
-- 15.54 — **Tambah**: tambah fitur pengaturan
-- 15.54 — **Perbaiki**: bug harga di cart
-```
-
-### 5. Lokasi file catatan
+### 7. Lokasi file catatan
 
 Catatan tersimpan (dan dibuat otomatis bila belum ada) di:
 
@@ -195,7 +206,7 @@ Jalankan auto-test (tanpa dependensi eksternal):
 npm test
 ```
 
-Hasil akhir diharapkan semua lulus (`pass`). Test mencakup format tanggal, pembuatan file catatan, pengelompokan per tanggal, serta riwayat `lihat`/`hariini`.
+Hasil akhir diharapkan semua lulus (`pass`). Test mencakup format tanggal, pembuatan file catatan, pengelompokan per tanggal, pembacaan entri (`lihat`), serta penghapusan entri (`hapus`).
 
 ## Kontribusi
 

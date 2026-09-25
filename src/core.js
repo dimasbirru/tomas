@@ -98,3 +98,72 @@ export function ambilCatatanHariIni(path) {
   const bagian = baris.slice(idx).join("\n");
   return bagian.replace(/\s+$/, "");
 }
+
+const POLA_ENTRI = /^- (\d{2}\.\d{2}) — \*\*([^*]+)\*\*: (.*)$/;
+
+export function daftarEntri(path) {
+  const teks = bacaCatatan(path);
+  if (!teks) return [];
+  const hasil = [];
+  let tanggal = null;
+  for (const baris of teks.split(/\r?\n/)) {
+    const judul = baris.match(/^## (\d{4}-\d{2}-\d{2})/);
+    if (judul) {
+      tanggal = judul[1];
+      continue;
+    }
+    const m = baris.match(POLA_ENTRI);
+    if (m && tanggal) {
+      hasil.push({ tanggal, jam: m[1], tipe: m[2], pesan: m[3] });
+    }
+  }
+  return hasil;
+}
+
+export function hapusEntri(path, nomor) {
+  const teks = bacaCatatan(path);
+  if (!teks) return { ok: false, alasan: "file-tidak-ada" };
+
+  const garis = teks.split(/\r?\n/);
+  const kepala = [];
+  const seksi = [];
+  let judul = null;
+  let isi = [];
+  let mulai = false;
+  let no = 0;
+  let dihapus = false;
+  const simpan = () => {
+    if (judul && isi.some((g) => POLA_ENTRI.test(g))) {
+      seksi.push(judul, ...isi, "");
+    }
+    isi = [];
+  };
+
+  for (const baris of garis) {
+    if (baris.startsWith("## ")) {
+      simpan();
+      judul = baris;
+      mulai = true;
+    } else if (!mulai) {
+      kepala.push(baris);
+    } else if (POLA_ENTRI.test(baris)) {
+      no += 1;
+      if (no === nomor) {
+        dihapus = true;
+      } else {
+        isi.push(baris);
+      }
+    } else {
+      isi.push(baris);
+    }
+  }
+  simpan();
+
+  if (!dihapus) return { ok: false, alasan: "nomor-tidak-ditemukan" };
+
+  while (kepala.length && kepala[kepala.length - 1] === "") kepala.pop();
+  const hasil = kepala.length ? [...kepala, "", ...seksi] : seksi;
+  const teksBaru = hasil.join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  writeFileSync(path, `${teksBaru}\n`);
+  return { ok: true, nomor };
+}

@@ -9,6 +9,8 @@ import {
   catat,
   ambilCatatan,
   ambilCatatanHariIni,
+  daftarEntri,
+  hapusEntri,
 } from "../src/core.js";
 
 function setup() {
@@ -77,5 +79,48 @@ test("ambilCatatanHariIni membaca section tanggal hari ini", () => {
   catat(path, "Dimas", "Tambah", "pesan hari ini");
   const bagian = ambilCatatanHariIni(path);
   assert.ok(bagian.includes("pesan hari ini"));
+  teardown(dir);
+});
+
+test("daftarEntri membaca semua entri beserta tanggalnya", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "satu");
+  catat(path, "Dimas", "Perbaiki", "dua");
+  const daftar = daftarEntri(path);
+  assert.equal(daftar.length, 2);
+  assert.equal(daftar[0].tipe, "Tambah");
+  assert.equal(daftar[1].pesan, "dua");
+  assert.match(daftar[0].tanggal, /^\d{4}-\d{2}-\d{2}$/);
+  teardown(dir);
+});
+
+test("hapusEntri menghapus nomor yang diminta", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "pertama");
+  catat(path, "Dimas", "Ubah", "kedua");
+  catat(path, "Dimas", "Perbaiki", "ketiga");
+  const hasil = hapusEntri(path, 2);
+  assert.ok(hasil.ok);
+  const daftar = daftarEntri(path);
+  assert.equal(daftar.length, 2);
+  assert.equal(daftar[0].pesan, "pertama");
+  assert.equal(daftar[1].pesan, "ketiga");
+  teardown(dir);
+});
+
+test("hapusEntri mengembalikan gagal bila nomor tidak ditemukan", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "satu");
+  assert.equal(hapusEntri(path, 5).ok, false);
+  teardown(dir);
+});
+
+test("hapusEntri membuang header tanggal bila seksi jadi kosong", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "satu-satunya");
+  const hasil = hapusEntri(path, 1);
+  assert.ok(hasil.ok);
+  const teks = readFileSync(path, "utf8");
+  assert.ok(!teks.includes("## "), "header tanggal ikut terhapus bila kosong");
   teardown(dir);
 });

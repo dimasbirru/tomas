@@ -5,6 +5,19 @@ Semua perubahan penting pada tomas dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 Versi mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.2.0] - 2026-09-25
+
+### Ditambahkan
+- `hapus <nomor>` kini **menghapus entri sungguhan** (sebelumnya hanya mencatat kategori "Hapus"). Gunakan `lihat` untuk melihat nomor, lalu `hapus 2`.
+- `lihat` dan `hariini` menampilkan entri **bernomor**.
+- Header tanggal yang kehabisan entri otomatis dibersihkan.
+
+### Perubahan
+- **Satu mode saja**: tomas kini murni interaktif (`tomas` → ketik perintah langsung, `keluar` untuk kembali). Mode satu-perintah (`tomas tambah "..."`) dihapus.
+- `hapus "pesan"` tidak lagi mencatat kategori; perintah `hapus` kini butuh nomor entri.
+- Menu `bantu` dirapikan menjadi kelompok Mencatat / Mengelola / Lainnya.
+- Versi dinaikkan dari `1.1.0` menjadi `1.2.0`.
+
 ## [1.1.0] - 2026-09-25
 
 ### Ditambahkan
