@@ -82,8 +82,10 @@ export function catat(path, pemilik, tipe, isi) {
 export function ambilCatatan(path) {
   const teks = bacaCatatan(path);
   if (!teks) return null;
-  const baris = teks.split("\n").filter(Boolean).join("\n");
-  return baris;
+  const baris = teks.split("\n");
+  const mulai = baris.findIndex((b) => b.startsWith("## "));
+  if (mulai === -1) return null;
+  return baris.slice(mulai).join("\n").trim();
 }
 
 export function ambilCatatanHariIni(path) {
