@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, rmSync, readFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { basename, dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import {
   tanggalHariIni,
@@ -12,6 +12,9 @@ import {
   daftarEntri,
   hapusEntri,
   cariEntri,
+  namaProyekSekarang,
+  pathCatatan,
+  ROOT,
 } from "../src/core.js";
 
 function setup() {
@@ -149,5 +152,34 @@ test("cariEntri juga mencocokkan tanggal", () => {
   catat(path, "Dimas", "Tambah", "entri apapun");
   const hasil = cariEntri(path, tanggalHariIni());
   assert.ok(hasil.length >= 1);
+  teardown(dir);
+});
+
+test("namaProyekSekarang memakai nama folder kerja saat ini", () => {
+  const nama = namaProyekSekarang();
+  assert.ok(nama.length > 0);
+  assert.equal(nama, basename(process.cwd()).replace(/[<>:"/\\|?*]/g, ""));
+});
+
+test("pathCatatan menaruh file per project di dalam folder catatan", () => {
+  const p = pathCatatan({ folderCatatan: "catatan" });
+  const folder = dirname(p);
+  assert.equal(basename(folder), "catatan");
+  assert.equal(dirname(folder), ROOT);
+  assert.equal(basename(p), `${namaProyekSekarang()}.md`);
+});
+
+test("pathCatatan menghormati fileCatatan eksplisit bila diisi", () => {
+  const p = pathCatatan({ fileCatatan: "CATATAN.md" });
+  assert.equal(basename(p), "CATATAN.md");
+  assert.equal(dirname(p), ROOT);
+});
+
+test("buatLogBaru membuat folder catatan bila belum ada", () => {
+  const { dir, path } = setup();
+  const dalam = join(dir, "catatan", "proyek-x.md");
+  catat(dalam, "Dimas", "Tambah", "isi");
+  assert.ok(existsSync(join(dir, "catatan")), "folder catatan harus dibuat otomatis");
+  assert.match(readFileSync(dalam, "utf8"), /isi/);
   teardown(dir);
 });

@@ -13,12 +13,14 @@ import {
   daftarEntri,
   cariEntri,
   hapusEntri,
+  namaProyekSekarang,
 } from "../src/core.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const config = muatConfig();
 const pemilik = config.pemilik || "Dimas";
 const fileCatatan = pathCatatan(config);
+const namaProyek = namaProyekSekarang();
 
 const TIPE = {
   tambah: "Tambah",
@@ -35,7 +37,13 @@ const tebal = (t) => c(t, "1");
 function sapaan() {
   console.log(`Halo ${tebal(hijau(pemilik))}, selamat datang!`);
   console.log("Aku tomas, pencatat kerjaan harianmu.");
-  console.log(`Ketik ${hijau("bantu")} untuk daftar perintah, ${hijau("keluar")} untuk kembali ke terminal.`);
+  console.log(`Catatan proyek '${tebal(namaProyek)}' tersimpan di ${hijau("catatan/" + namaProyek + ".md")}.`);
+  console.log(`Ketik ${hijau("bantu")} untuk daftar perintah, ${hijau("lokasi")} untuk jalur lengkap, ${hijau("keluar")} untuk kembali ke terminal.`);
+}
+
+function lokasi() {
+  console.log(`Catatan proyek '${tebal(namaProyek)}' disimpan di:`);
+  console.log(hijau(fileCatatan));
 }
 
 function bantu() {
@@ -61,6 +69,7 @@ function bantu() {
       judul: "Lainnya",
       baris: [
         ["bantu", "tampilkan menu ini"],
+        ["lokasi", "lihat lokasi file catatan proyek ini"],
         ["versi", "versi tomas"],
         ["keluar", "keluar dari mode interaktif"],
       ],
@@ -288,6 +297,9 @@ function jalankan(perintah, pesan) {
     case "--versi":
     case "-v":
       versi();
+      return;
+    case "lokasi":
+      lokasi();
       return;
     case "keluar":
     case "exit":

@@ -1,11 +1,11 @@
-import { readFileSync, writeFileSync, appendFileSync, existsSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, appendFileSync, existsSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 export const CONFIG_PATH = join(ROOT, "config.tomas.json");
 
-const DEFAULT_CONFIG = { pemilik: "Dimas", fileCatatan: "CATATAN.md" };
+const DEFAULT_CONFIG = { pemilik: "Dimas", folderCatatan: "catatan" };
 
 export function muatConfig() {
   if (existsSync(CONFIG_PATH)) {
@@ -41,9 +41,22 @@ export function judulTanggal(tanggal) {
   return `${tgl} ${namaBulan[Number(bln) - 1]} ${thn}`;
 }
 
+export function namaProyekSekarang() {
+  const cwd = process.cwd();
+  const base = cwd.split(/[\\/]/).filter(Boolean).pop() || "";
+  const dibersihkan = base.replace(/[<>:"/\\|?*]/g, "").trim();
+  if (!dibersihkan || /^[a-zA-Z]:$/.test(dibersihkan) || dibersihkan.length <= 1) {
+    return "umum";
+  }
+  return dibersihkan;
+}
+
 export function pathCatatan(config) {
-  const nama = config.fileCatatan || "CATATAN.md";
-  return join(ROOT, nama);
+  if (config.fileCatatan) {
+    return join(ROOT, config.fileCatatan);
+  }
+  const folder = config.folderCatatan || "catatan";
+  return join(ROOT, folder, `${namaProyekSekarang()}.md`);
 }
 
 export function bacaCatatan(path) {
@@ -52,6 +65,7 @@ export function bacaCatatan(path) {
 }
 
 export function buatLogBaru(path, pemilik) {
+  mkdirSync(dirname(path), { recursive: true });
   writeFileSync(
     path,
     `# Catatan Kerja — tomas\n\nPemilik: ${pemilik}\nBerisi daftar kegiatan harian yang dicatat lewat tomas.\n\n`

@@ -19,6 +19,8 @@ Ketik `tomas` sekali, kamu masuk mode tomas. Perintah berikutnya diketik langsun
 
 - Sapaan pribadi dengan nama pemilik (dari `config.tomas.json`)
 - Mode interaktif: `tomas` masuk, ketik `keluar` untuk kembali ke terminal
+- **Catatan terpisah per project** di `catatan/<nama-project>.md`
+- Perintah `lokasi` untuk melihat di mana file catatan project ini disimpan
 - Mencatat: `tambah`, `perbaiki`, `ubah`
 - Mengelola: `lihat` (seluruh, bernomor), `cari "kata"`, dan `hapus <nomor|"teks">` yang benar-benar menghapus entri dengan pratinjau & konfirmasi
 - Auto-create file catatan (dibuat otomatis saat pertama mencatat)
@@ -27,7 +29,7 @@ Ketik `tomas` sekali, kamu masuk mode tomas. Perintah berikutnya diketik langsun
 
 ## Status
 
-Rilis v1.3.0. Semua perintah berfungsi dalam mode interaktif: sapaan (`tomas`), menu (`bantu`), cek versi (`versi`), pencatatan (`tambah`, `perbaiki`, `ubah`), riwayat (`lihat`, `hariini`), pencarian (`cari "kata"`), dan penghapusan aman (`hapus <nomor|"teks">`) dengan pratinjau & konfirmasi.
+Rilis v1.4.0. Semua perintah berfungsi dalam mode interaktif: sapaan (`tomas`), menu (`bantu`), cek versi (`versi`), lokasi file (`lokasi`), pencatatan (`tambah`, `perbaiki`, `ubah`), riwayat (`lihat`, `hariini`), pencarian (`cari "kata"`), dan penghapusan aman (`hapus <nomor|"teks">`) dengan pratinjau & konfirmasi. Catatan dipisah per project di folder `catatan/`.
 
 ## Roadmap Pengerjaan
 
@@ -43,14 +45,36 @@ Rilis v1.3.0. Semua perintah berfungsi dalam mode interaktif: sapaan (`tomas`), 
 | 7 | Mode interaktif (tanpa prefix `tomas` tiap perintah) | Selesai |
 | 8 | `hapus` menghapus entri sungguhan (bernomor) | Selesai |
 | 9 | `cari`, `hapus` berbasis teks, dan konfirmasi sebelum hapus | Selesai |
+| 10 | Catatan terpisah per project di `catatan/` + perintah `lokasi` | Selesai |
 
 ### Ide pengembangan lanjut
 
 | # | Ide | Status |
 |---|-----|--------|
-| 6 | Perlihatkan lokasi `CATATAN.md` yang dibaca tomas | Terbuka |
 | 8 | Input suara untuk mencatat (voice-to-note) | Terbuka |
 | — | Auto-commit/push harian, rekap mingguan, ekspor JSON/CSV, tag & filter | Dipertimbangkan |
+
+## Catatan Per Project
+
+Tiap project punya catatan sendiri, semua terkumpul dalam satu folder `catatan/` di dalam repo tomas. Nama file diambil dari nama folder project tempat kamu menjalankan `tomas`:
+
+```
+cd C:\Users\kemba\Projects\proyek-ecommerce
+tomas                      → memakai catatan/proyek-ecommerce.md
+
+cd C:\Users\kemba\Projects\proyek-portfolio
+tomas                      → memakai catatan/proyek-portfolio.md
+```
+
+Lihat jalur lengkapnya kapan saja dengan perintah `lokasi`:
+
+```
+tomas> lokasi
+Catatan proyek 'proyek-ecommerce' disimpan di:
+C:\Users\kemba\Projects\tomas\catatan\proyek-ecommerce.md
+```
+
+Folder `catatan/` otomatis dibuat saat pertama kali mencatat dan tidak ikut di-commit ke git.
 
 ## Struktur Proyek
 
@@ -59,9 +83,11 @@ tomas/
 ├── bin/tomas.js          # Titik masuk CLI
 ├── src/core.js           # Logika inti (config, tanggal, catatan)
 ├── test/core.test.js     # Auto-test
-├── config.tomas.json     # Nama pemilik & nama file catatan
+├── config.tomas.json     # Nama pemilik & nama folder catatan
 ├── CHANGELOG.md          # Riwayat versi
-├── CATATAN.md            # Hasil catatan (dibuat saat pertama kali mencatat, tidak ikut git)
+├── catatan/              # Catatan per project (dibuat otomatis, tidak ikut git)
+│   ├── proyek-a.md
+│   └── proyek-b.md
 ├── package.json
 └── README.md
 ```
@@ -214,20 +240,20 @@ Sampai jumpa Dimas, sampai jumpa lagi!
 
 ### 8. Lokasi file catatan
 
-Catatan tersimpan (dan dibuat otomatis bila belum ada) di:
+Catatan project aktif tersimpan (dan foldernya dibuat otomatis bila belum ada) di:
 
 ```
-C:\Users\kemba\Projects\tomas\CATATAN.md
+C:\Users\kemba\Projects\tomas\catatan\<nama-project>.md
 ```
 
 ## Konfigurasi
 
-Ubah nama pemilik atau nama file catatan di `config.tomas.json`:
+Ubah nama pemilik atau nama folder catatan di `config.tomas.json`:
 
 ```json
 {
   "pemilik": "Dimas",
-  "fileCatatan": "CATATAN.md"
+  "folderCatatan": "catatan"
 }
 ```
 

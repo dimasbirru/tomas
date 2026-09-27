@@ -5,6 +5,19 @@ Semua perubahan penting pada tomas dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 Versi mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.4.0] - 2026-09-27
+
+### Ditambahkan
+- **Catatan terpisah per project**: setiap project punya file sendiri di `catatan/<nama-project>.md` (nama diambil dari folder tempat `tomas` dijalankan). Semua file terkumpul dalam satu folder `catatan/` di dalam repo tomas.
+- Perintah `lokasi` — menampilkan jalur lengkap file catatan project yang sedang aktif.
+- Sapaan sekalian menyebut nama project aktif dan lokasi relatif filenya.
+- Folder `catatan/` dibuat otomatis saat pertama kali mencatat, dan sudah masuk `.gitignore`.
+- Nama file project dibersihkan dari karakter yang tidak valid di Windows.
+
+### Perubahan
+- `config.tomas.json`: `fileCatatan` diganti `folderCatatan` (default `catatan`). Kalau `fileCatatan` masih diisi, perilaku lama (satu file di root repo) tetap dipakai.
+- Versi dinaikkan dari `1.3.0` menjadi `1.4.0`.
+
 ## [1.3.0] - 2026-09-25
 
 ### Ditambahkan
