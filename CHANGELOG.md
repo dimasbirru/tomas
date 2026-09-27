@@ -5,6 +5,12 @@ Semua perubahan penting pada tomas dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 Versi mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.4.1] - 2026-09-27
+
+### Perubahan
+- README dipangkas: contoh penggunaan lengkap dipindahkan ke `docs/CONTOH.md`, tabel perintah diringkas.
+- Versi dinaikkan dari `1.4.0` menjadi `1.4.1`.
+
 ## [1.4.0] - 2026-09-27
 
 ### Ditambahkan

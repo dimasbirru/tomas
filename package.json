@@ -1,6 +1,6 @@
 {
   "name": "tomas",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Pencatat log kerja harian pribadi. Ketik: tomas tambah \"tambah fitur pengaturan\"",
   "type": "module",
   "bin": {
