@@ -5,25 +5,29 @@ Semua contoh dijalankan di dalam mode interaktif. Ketik `tomas` di terminal, lal
 ## Daftar perintah
 
 ```
-tomas> bantu
+tomas> menu
 Halo Dimas, ini daftar perintah tomas:
 
 MENCATAT
-  tambah "pesan"     catat kegiatan yang ditambahkan
-  perbaiki "pesan"   catat perbaikan
-  ubah "pesan"       catat perubahan
+  tambah "pesan"         catat kegiatan yang ditambahkan
+  perbaiki "pesan"       catat perbaikan
+  ubah "pesan"           catat perubahan
 
 MENGELOLA
   lihat                  lihat seluruh catatan bernomor
   hariini                lihat catatan hari ini
   hapus <nomor|"teks">   hapus entri (lihat nomor atau cari teks) — dikonfirmasi
-  cari "kata"            temukan catatan berisi kata
+  cari "kata"            temuan catatan berisi kata
 
 LAINNYA
-  bantu                  tampilkan menu ini
+  menu                   tampilkan daftar perintah ini
   lokasi                 lihat lokasi file catatan proyek ini
   versi                  versi tomas
   keluar                 keluar dari mode interaktif
+
+Tips:
+  Ketik langsung, misalnya tambah "fitur" atau lihat.
+  Untuk menghapus: hapus 2 atau hapus "sebagian pesan" — selalu dikonfirmasi.
 ```
 
 ## Mencatat kegiatan

@@ -5,6 +5,15 @@ Semua perubahan penting pada tomas dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 Versi mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.5.0] - 2026-09-27
+
+### Perubahan
+- Perintah `bantu` diganti menjadi `menu` (lebih pendek dan intuitive). `bantu` tetap diterima sebagai alias.
+- Fungsi internal `bantu()` renamed menjadi `tampilkanMenu()`.
+- Sapaan dan pesan "perintah tidak dikenal" sekarang tanpa baris kosong di antaranya.
+- Dokumentasi (README & docs/CONTOH.md) sinkron dengan nama perintah baru.
+- Versi dinaikkan dari `1.4.2` menjadi `1.5.0`.
+
 ## [1.4.2] - 2026-09-27
 
 ### Perubahan

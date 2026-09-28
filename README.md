@@ -4,7 +4,7 @@ Pencatat log kerja harian pribadi, langsung dari terminal. Tiap project punya ca
 
 ```
 $ tomas
-Halo Dimas! Aku tomas, pencatat kerja 'tomas' — ketik bantu untuk perintah, keluar untuk keluar.
+Halo Dimas! Aku tomas, pencatat kerja 'tomas' — ketik menu untuk perintah, keluar untuk keluar.
 
 tomas> tambah "bikin halaman login"
 Baik Dimas, saya catat: "bikin halaman login".
@@ -61,7 +61,7 @@ tomas   → memakai catatan/proyek-portfolio.md
 | `cari "kata"` | temukan catatan |
 | `hapus <nomor\|"teks">` | hapus entri (berkonfirmasi) |
 | `lokasi` | jalur file catatan project aktif |
-| `bantu` | daftar perintah |
+| `menu` | daftar perintah |
 | `versi` | versi tomas |
 | `keluar` | kembali ke terminal |
 

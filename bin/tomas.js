@@ -35,7 +35,7 @@ const abu = (t) => c(t, "90");
 const tebal = (t) => c(t, "1");
 
 function sapaan() {
-  console.log(`Halo ${tebal(hijau(pemilik))}! Aku tomas, pencatat kerja '${tebal(namaProyek)}' — ketik ${hijau("bantu")} untuk perintah, ${hijau("keluar")} untuk keluar.`);
+  console.log(`Halo ${tebal(hijau(pemilik))}! Aku tomas, pencatat kerja '${tebal(namaProyek)}' — ketik ${hijau("menu")} untuk perintah, ${hijau("keluar")} untuk keluar.`);
 }
 
 function lokasi() {
@@ -43,7 +43,7 @@ function lokasi() {
   console.log(hijau(fileCatatan));
 }
 
-function bantu() {
+function tampilkanMenu() {
   const kelompok = [
     {
       judul: "Mencatat",
@@ -65,7 +65,7 @@ function bantu() {
     {
       judul: "Lainnya",
       baris: [
-        ["bantu", "tampilkan menu ini"],
+        ["menu", "tampilkan daftar perintah ini"],
         ["lokasi", "lihat lokasi file catatan proyek ini"],
         ["versi", "versi tomas"],
         ["keluar", "keluar dari mode interaktif"],
@@ -270,8 +270,9 @@ let menunggu = null;
 
 function jalankan(perintah, pesan) {
   switch (perintah) {
+    case "menu":
     case "bantu":
-      bantu();
+      tampilkanMenu();
       return;
     case "tambah":
     case "perbaiki":
@@ -303,7 +304,7 @@ function jalankan(perintah, pesan) {
       return;
     default:
       console.log(`Perintah "${perintah}" tidak dikenal.`);
-      bantu();
+      tampilkanMenu();
   }
 }
 
