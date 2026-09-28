@@ -108,6 +108,27 @@ Ditemukan 2 catatan berisi 'login':
 Mau hapus salah satunya? Gunakan hapus <nomor>.
 ```
 
+`cari` juga cocok dengan **tanggal**, jadi bisa langsung menyaring satu hari:
+
+```
+tomas> cari 2026-09-25
+Ditemukan 4 catatan berisi '2026-09-25':
+1. (2026-09-25) 15.54 — **Tambah**: bikin halaman login
+2. (2026-09-25) 15.58 — **Perbaiki**: bug login
+3. (2026-09-25) 16.30 — **Tambah**: bikin halaman login
+4. (2026-09-25) 17.02 — **Ubah**: ganti warna tombol
+```
+
+Kata kunci dicocokkan dengan isi pesan, jenis catatan (Tambah/Perbaiki/Ubah), dan tanggal — jadi `cari "perbaiki"` atau `cari "2026-09-25"` sama-sama berhasil.
+
+## Catatan tentang nomor entri
+
+Nomor yang tampil di `lihat` dan `cari` adalah **nomor urut** (1, 2, 3, ...), bukan nomor baris di file. Konsekuensinya:
+
+- Nomor **bergeser setiap kali ada entri dihapus** — jadi nomor bersifat "k的记忆", bukan identitas tetap.
+- Nomor **berbeda antar project**, karena tiap project punya file sendiri.
+- Entri lebih aman dihapus dengan `hapus "teks"` daripada `hapus <nomor>`, kalau tidak yakin nomornya masih benar.
+
 ## Lokasi file catatan
 
 ```

@@ -35,10 +35,7 @@ const abu = (t) => c(t, "90");
 const tebal = (t) => c(t, "1");
 
 function sapaan() {
-  console.log(`Halo ${tebal(hijau(pemilik))}, selamat datang!`);
-  console.log("Aku tomas, pencatat kerjaan harianmu.");
-  console.log(`Catatan proyek '${tebal(namaProyek)}' tersimpan di ${hijau("catatan/" + namaProyek + ".md")}.`);
-  console.log(`Ketik ${hijau("bantu")} untuk daftar perintah, ${hijau("lokasi")} untuk jalur lengkap, ${hijau("keluar")} untuk kembali ke terminal.`);
+  console.log(`Halo ${tebal(hijau(pemilik))}! Aku tomas, pencatat kerja '${tebal(namaProyek)}' — ketik ${hijau("bantu")} untuk perintah, ${hijau("keluar")} untuk keluar.`);
 }
 
 function lokasi() {
@@ -294,8 +291,6 @@ function jalankan(perintah, pesan) {
       hariIni();
       return;
     case "versi":
-    case "--versi":
-    case "-v":
       versi();
       return;
     case "lokasi":

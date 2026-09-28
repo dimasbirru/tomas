@@ -93,26 +93,6 @@ export function catat(path, pemilik, tipe, isi) {
   return `\`${tipe}\` "${isi}"`;
 }
 
-export function ambilCatatan(path) {
-  const teks = bacaCatatan(path);
-  if (!teks) return null;
-  const baris = teks.split("\n");
-  const mulai = baris.findIndex((b) => b.startsWith("## "));
-  if (mulai === -1) return null;
-  return baris.slice(mulai).join("\n").trim();
-}
-
-export function ambilCatatanHariIni(path) {
-  const teks = bacaCatatan(path);
-  if (!teks) return null;
-  const judul = `## ${tanggalHariIni()}`;
-  const baris = teks.split("\n");
-  const idx = baris.findIndex((b) => b.startsWith(judul));
-  if (idx === -1) return null;
-  const bagian = baris.slice(idx).join("\n");
-  return bagian.replace(/\s+$/, "");
-}
-
 const POLA_ENTRI = /^- (\d{2}\.\d{2}) — \*\*([^*]+)\*\*: (.*)$/;
 
 export function daftarEntri(path) {

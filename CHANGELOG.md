@@ -5,6 +5,15 @@ Semua perubahan penting pada tomas dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 Versi mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.4.2] - 2026-09-27
+
+### Perubahan
+- Sapaan saat membuka tomas diringkas jadi satu baris.
+- Alias perintah `--versi` dan `-v` dihapus (mode interaktif, cukup `versi`).
+- Fungsi `ambilCatatan` dan `ambilCatatanHariIni` yang sudah tidak terpakai dibuang beserta testnya.
+- Dokumentasi diperjelas: `cari` juga mencocokkan tanggal/jenis, dan nomor entri bersifat urut sehingga bergeser setelah penghapusan.
+- Versi dinaikkan dari `1.4.1` menjadi `1.4.2`.
+
 ## [1.4.1] - 2026-09-27
 
 ### Perubahan
@@ -59,7 +68,7 @@ Versi mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 - Dokumentasi mode interaktif di README.
 
 ### Perubahan
-- Versi dinaikkan dari `1.0.0` menjadi `1.1.0`.
+- Rilis ini masih menyediakan mode satu-perintah (`tomas tambah "..."`); pada rilis berikutnya (1.2.0) mode tersebut dihapus dan tomas menjadi murni interaktif.
 
 ## [1.0.0] - 2026-09-25
 

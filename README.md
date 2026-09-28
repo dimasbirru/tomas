@@ -4,9 +4,7 @@ Pencatat log kerja harian pribadi, langsung dari terminal. Tiap project punya ca
 
 ```
 $ tomas
-Halo Dimas, selamat datang!
-Aku tomas, pencatat kerjaan harianmu.
-Catatan proyek 'tomas' tersimpan di catatan/tomas.md.
+Halo Dimas! Aku tomas, pencatat kerja 'tomas' — ketik bantu untuk perintah, keluar untuk keluar.
 
 tomas> tambah "bikin halaman login"
 Baik Dimas, saya catat: "bikin halaman login".
@@ -68,6 +66,8 @@ tomas   → memakai catatan/proyek-portfolio.md
 | `keluar` | kembali ke terminal |
 
 Contoh pemakaian lengkap: [docs/CONTOH.md](docs/CONTOH.md).
+
+> Nomor entri bersifat **urut** (1, 2, 3, ...) dan bergeser setiap kali ada yang dihapus. Kalau tidak yakin, pakai `hapus "teks"` daripada `hapus <nomor>`.
 
 ## Konfigurasi
 

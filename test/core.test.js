@@ -7,8 +7,6 @@ import {
   tanggalHariIni,
   judulTanggal,
   catat,
-  ambilCatatan,
-  ambilCatatanHariIni,
   daftarEntri,
   hapusEntri,
   cariEntri,
@@ -53,36 +51,6 @@ test("catat menggabungkan entri dengan tanggal yang sama", () => {
   assert.ok(hari.includes("entri satu"));
   assert.ok(hari.includes("entri dua"));
   assert.equal((hari.match(/entri satu/g) || []).length, 1, "tidak boleh duplikat");
-  teardown(dir);
-});
-
-test("ambilCatatan mengembalikan null bila file belum ada", () => {
-  const { dir, path } = setup();
-  assert.equal(ambilCatatan(path), null);
-  teardown(dir);
-});
-
-test("ambilCatatan mengabaikan header file dan hanya menampilkan bagian catatan", () => {
-  const { dir, path } = setup();
-  catat(path, "Dimas", "Ubah", "pesan contoh");
-  const hasil = ambilCatatan(path);
-  assert.ok(!hasil.includes("Catatan Kerja"), "header tidak boleh tampil");
-  assert.ok(!hasil.includes("Pemilik:"), "baris pemilik tidak boleh tampil");
-  assert.ok(hasil.includes("pesan contoh"));
-  teardown(dir);
-});
-
-test("ambilCatatanHariIni mengembalikan null bila belum ada catatan", () => {
-  const { dir, path } = setup();
-  assert.equal(ambilCatatanHariIni(path), null);
-  teardown(dir);
-});
-
-test("ambilCatatanHariIni membaca section tanggal hari ini", () => {
-  const { dir, path } = setup();
-  catat(path, "Dimas", "Tambah", "pesan hari ini");
-  const bagian = ambilCatatanHariIni(path);
-  assert.ok(bagian.includes("pesan hari ini"));
   teardown(dir);
 });
 
