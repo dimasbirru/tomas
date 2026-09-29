@@ -127,6 +127,91 @@ export function cariEntri(path, teks) {
     );
 }
 
+export function tanggalOffset(tanggal, offset) {
+  const [thn, bln, tgl] = tanggal.split("-").map(Number);
+  const d = new Date(thn, bln - 1, tgl + offset);
+  const thnBaru = String(d.getFullYear()).padStart(4, "0");
+  const blnBaru = String(d.getMonth() + 1).padStart(2, "0");
+  const tglBaru = String(d.getDate()).padStart(2, "0");
+  return `${thnBaru}-${blnBaru}-${tglBaru}`;
+}
+
+export function hitungStreak(tanggalSet, acuan = tanggalHariIni()) {
+  let pointer = tanggalSet.has(acuan) ? acuan : tanggalOffset(acuan, -1);
+  let n = 0;
+  while (tanggalSet.has(pointer)) {
+    n += 1;
+    pointer = tanggalOffset(pointer, -1);
+  }
+  return n;
+}
+
+const PERIODE_REKAP = ["hari", "minggu", "bulan", "semua"];
+
+export function periodeValid(periode) {
+  return PERIODE_REKAP.includes(periode);
+}
+
+export function rekapEntri(path, periode = "minggu") {
+  const acuan = tanggalHariIni();
+  const semua = daftarEntri(path);
+
+  let terfilter = semua;
+  let rentang = null;
+
+  if (periode === "hari") {
+    terfilter = semua.filter((e) => e.tanggal === acuan);
+    rentang = [acuan, acuan];
+  } else if (periode === "minggu") {
+    const mulai = tanggalOffset(acuan, -6);
+    terfilter = semua.filter((e) => e.tanggal >= mulai && e.tanggal <= acuan);
+    rentang = [mulai, acuan];
+  } else if (periode === "bulan") {
+    const bulan = acuan.slice(0, 7);
+    terfilter = semua.filter((e) => e.tanggal.startsWith(bulan));
+    rentang = [bulan + "-01", bulan + "-31"];
+  }
+
+  const perTanggal = new Map();
+  const perTipe = new Map();
+  const perJam = new Map();
+
+  for (const e of terfilter) {
+    perTanggal.set(e.tanggal, (perTanggal.get(e.tanggal) || 0) + 1);
+    perTipe.set(e.tipe, (perTipe.get(e.tipe) || 0) + 1);
+    const jam = e.jam.split(".")[0];
+    perJam.set(jam, (perJam.get(jam) || 0) + 1);
+  }
+
+  const perTipeUrut = [...perTipe.entries()].sort((a, b) => b[1] - a[1]);
+  const perTanggalUrut = [...perTanggal.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+  const jamUrut = [...perJam.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3);
+
+  let totalHari = null;
+  if (periode === "hari") totalHari = 1;
+  else if (periode === "minggu") totalHari = 7;
+  else if (periode === "bulan") {
+    const [thn, bln] = acuan.split("-").map(Number);
+    totalHari = new Date(thn, bln, 0).getDate();
+  } else {
+    totalHari = perTanggal.size;
+  }
+
+  return {
+    periode,
+    total: terfilter.length,
+    hariAktif: perTanggal.size,
+    totalHari,
+    rentang,
+    streak: hitungStreak(new Set(semua.map((e) => e.tanggal)), acuan),
+    jamTeratas: jamUrut,
+    perTipe: perTipeUrut,
+    perTanggal: perTanggalUrut,
+    maxPerTanggal: perTanggalUrut.length ? perTanggalUrut[perTanggalUrut.length - 1][1] : 0,
+    maxPerTipe: perTipeUrut.length ? perTipeUrut[0][1] : 0,
+  };
+}
+
 export function hapusEntri(path, nomor) {
   const teks = bacaCatatan(path);
   if (!teks) return { ok: false, alasan: "file-tidak-ada" };

@@ -9,25 +9,22 @@ tomas> menu
 Halo Dimas, ini daftar perintah tomas:
 
 MENCATAT
-  tambah "pesan"         catat kegiatan yang ditambahkan
-  perbaiki "pesan"       catat perbaikan
-  ubah "pesan"           catat perubahan
+  tambah "pesan"             catat kegiatan yang ditambahkan
+  perbaiki "pesan"           catat perbaikan
+  ubah "pesan"               catat perubahan
 
 MENGELOLA
-  lihat                  lihat seluruh catatan bernomor
-  hariini                lihat catatan hari ini
-  hapus <nomor|"teks">   hapus entri (lihat nomor atau cari teks) — dikonfirmasi
-  cari "kata"            temuan catatan berisi kata
+  lihat                      lihat seluruh catatan bernomor
+  hariini                    lihat catatan hari ini
+  rekap [hari|bulan|semua]   ringkasan statistik catatan
+  hapus <nomor|"teks">       hapus entri (lihat nomor atau cari teks) — dikonfirmasi
+  cari "kata"                temukan catatan berisi kata
 
 LAINNYA
-  menu                   tampilkan daftar perintah ini
-  lokasi                 lihat lokasi file catatan proyek ini
-  versi                  versi tomas
-  keluar                 keluar dari mode interaktif
-
-Tips:
-  Ketik langsung, misalnya tambah "fitur" atau lihat.
-  Untuk menghapus: hapus 2 atau hapus "sebagian pesan" — selalu dikonfirmasi.
+  menu                       tampilkan daftar perintah ini
+  lokasi                     lihat lokasi file catatan proyek ini
+  versi                      versi tomas
+  keluar                     keluar dari mode interaktif
 ```
 
 ## Mencatat kegiatan
@@ -124,6 +121,53 @@ Ditemukan 4 catatan berisi '2026-09-25':
 ```
 
 Kata kunci dicocokkan dengan isi pesan, jenis catatan (Tambah/Perbaiki/Ubah), dan tanggal — jadi `cari "perbaiki"` atau `cari "2026-09-25"` sama-sama berhasil.
+
+## Rekap statistik
+
+`rekap` meringkas catatan jadi angka. Tanpa argumen ia menghitung 7 hari terakhir.
+
+```
+tomas> rekap
+
+REKAP 7 HARI TERAKHIR (2026-09-23 s/d 2026-09-29)
+────────────────────────────────────────────────────
+Total entri      24
+Hari aktif       6 dari 7
+Streak           3 hari beruntun
+Jam paling sering 15:00 (8), 16:00 (5)
+
+Per jenis
+  Perbaiki  ████████████████████   10  42%
+  Tambah    █████████████          6  25%
+  Ubah      ████                   3  12%
+
+Per hari
+  2026-09-25  ██████████████  6
+  2026-09-26  ████████        4
+  2026-09-27  ████████████████████  10
+```
+
+Argumen yang tersedia:
+
+| Perintah | Menghitung |
+|----------|-----------|
+| `rekap` | 7 hari terakhir (default) |
+| `rekap hari` | hari ini saja |
+| `rekap bulan` | bulan berjalan |
+| `rekap semua` | seluruh riwayat |
+
+Cara membacanya:
+- **Streak** dihitung mundur dari hari ini. Kalau hari ini belum ada entri, streak dihitung dari kemarin.
+- **Jam paling sering** diambil dari 3 jam tersibuk, jadi terlihat kapan kamu paling produktif.
+- **Breakdown per jenis** menunjukkan rasio `Tambah` / `Perbaiki` / `Ubah`. Kalau `Perbaiki` jauh lebih besar, minggumu mungkin lebih banyak memperbaiki daripada membuat.
+- `rekap` **tidak pernah menulis** ke file catatan — murni membaca.
+
+Argumen yang tidak dikenal akan ditolak dengan daftar pilihan yang valid:
+
+```
+tomas> rekap minggu depan
+Periode "minggu depan" tidak dikenal. Pilihan: hari, minggu (default), bulan, semua.
+```
 
 ## Catatan tentang nomor entri
 

@@ -5,6 +5,22 @@ Semua perubahan penting pada tomas dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 Versi mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.6.0] - 2026-09-29
+
+### Ditambahkan
+- Perintah `rekap [hari|bulan|semua]` — ringkasan statistik catatan.
+  - Tanpa argumen menghitung 7 hari terakhir; `hari`, `bulan`, dan `semua` untuk periode lain.
+  - Menampilkan total entri, jumlah hari aktif, streak beruntun, 3 jam paling sering, breakdown per jenis (Tambah/Perbaiki/Ubah) dengan persentase, dan entri per hari.
+  - Sepenuhnya read-only: `rekap` tidak pernah menulis ke file catatan.
+  - Fungsi baru di `src/core.js`: `rekapEntri()`, `hitungStreak()`, `tanggalOffset()`, `periodeValid()`.
+  - Argumen yang tidak dikenal ditolak dengan daftar pilihan yang valid.
+  - 9 test baru; total 24 test lulus.
+
+### Perubahan
+- Perintah `rekap` ditambahkan ke kelompok MENGELOLA pada `menu`.
+- README dan docs/CONTOH.md ditambah bagian rekap beserta cara membacanya.
+- Versi dinaikkan dari `1.5.0` menjadi `1.6.0`.
+
 ## [1.5.0] - 2026-09-27
 
 ### Perubahan

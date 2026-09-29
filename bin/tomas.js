@@ -13,6 +13,9 @@ import {
   daftarEntri,
   cariEntri,
   hapusEntri,
+  rekapEntri,
+  periodeValid,
+  tanggalOffset,
   namaProyekSekarang,
 } from "../src/core.js";
 
@@ -43,6 +46,79 @@ function lokasi() {
   console.log(hijau(fileCatatan));
 }
 
+const LEBAR_BAR = 20;
+
+function bar(nilai, maks) {
+  if (!maks) return "";
+  const isi = Math.max(1, Math.round((nilai / maks) * LEBAR_BAR));
+  return "█".repeat(Math.min(isi, LEBAR_BAR));
+}
+
+function judulRekap(periode) {
+  if (periode === "hari") return "HARI INI";
+  if (periode === "bulan") return "BULAN INI";
+  if (periode === "semua") return "SELURUH RIWAYAT";
+  const mulai = tanggalOffset(tanggalHariIni(), -6);
+  return `7 HARI TERAKHIR (${mulai} s/d ${tanggalHariIni()})`;
+}
+
+function cetakRekap(periode = "minggu") {
+  if (!periodeValid(periode)) {
+    console.log(`Periode "${periode}" tidak dikenal. Pilihan: hari, minggu (default), bulan, semua.`);
+    return;
+  }
+
+  const r = rekapEntri(fileCatatan, periode);
+
+  if (r.total === 0) {
+    const keterangan = {
+      hari: "hari ini",
+      minggu: "7 hari terakhir",
+      bulan: "bulan ini",
+      semua: "sama sekali",
+    }[periode];
+    console.log(`Belum ada catatan ${keterangan} di project '${namaProyek}'.`);
+    console.log(abu(`File: ${fileCatatan}`));
+    return;
+  }
+
+  console.log("");
+  console.log(tebal(`REKAP ${judulRekap(periode)}`));
+  console.log(tebal("─".repeat(52)));
+
+  const label = (t) => t.padEnd(17);
+  console.log(`${label("Total entri")}${tebal(r.total)}`);
+  console.log(
+    periode === "semua"
+      ? `${label("Hari aktif")}${r.hariAktif}`
+      : `${label("Hari aktif")}${r.hariAktif} dari ${r.totalHari}`
+  );
+  console.log(`${label("Streak")}${r.streak} hari beruntun`);
+
+  if (r.jamTeratas.length) {
+    const jam = r.jamTeratas.map(([j, n]) => `${j}:00 (${n})`).join(", ");
+    console.log(`${label("Jam paling sering")}${jam}`);
+  }
+
+  console.log("");
+  console.log(tebal("Per jenis"));
+  for (const [tipe, n] of r.perTipe) {
+    const persen = Math.round((n / r.total) * 100);
+    console.log(
+      `  ${tipe.padEnd(9)} ${hijau(bar(n, r.maxPerTipe).padEnd(LEBAR_BAR))} ${String(n).padStart(3)}  ${abu(persen + "%")}`
+    );
+  }
+
+  console.log("");
+  console.log(tebal("Per hari"));
+  for (const [tgl, n] of r.perTanggal) {
+    console.log(
+      `  ${tgl}  ${hijau(bar(n, r.maxPerTanggal).padEnd(LEBAR_BAR))} ${String(n).padStart(3)}`
+    );
+  }
+  console.log("");
+}
+
 function tampilkanMenu() {
   const kelompok = [
     {
@@ -58,6 +134,7 @@ function tampilkanMenu() {
       baris: [
         ["lihat", "lihat seluruh catatan bernomor"],
         ["hariini", "lihat catatan hari ini"],
+        ["rekap [hari|bulan|semua]", "ringkasan statistik catatan"],
         ['hapus <nomor|"teks">', "hapus entri (lihat nomor atau cari teks) — dikonfirmasi"],
         ['cari "kata"', "temukan catatan berisi kata"],
       ],
@@ -290,6 +367,9 @@ function jalankan(perintah, pesan) {
       return;
     case "hariini":
       hariIni();
+      return;
+    case "rekap":
+      cetakRekap(pesan || "minggu");
       return;
     case "versi":
       versi();

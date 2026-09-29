@@ -22,6 +22,7 @@ Seluruh catatan Dimas:
 - Catatan terpisah per project di `catatan/<nama-project>.md`
 - Mencatat: `tambah`, `perbaiki`, `ubah`
 - Mengelola: `lihat`, `hariini`, `cari "kata"`, `hapus <nomor|"teks">` (dengan pratinjau & konfirmasi)
+- Statistik: `rekap [hari|bulan|semua]` — total entri, hari aktif, streak, jam paling sering, dan breakdown per jenis
 - Perintah `lokasi` untuk melihat jalur file catatan project aktif
 - Tanpa dependensi eksternal — murni Node.js
 - Auto-test bawaan (`npm test`)
@@ -58,6 +59,7 @@ tomas   → memakai catatan/proyek-portfolio.md
 | `ubah "pesan"` | catat perubahan |
 | `lihat` | seluruh catatan bernomor |
 | `hariini` | catatan hari ini |
+| `rekap [hari\|bulan\|semua]` | ringkasan statistik catatan (default 7 hari terakhir) |
 | `cari "kata"` | temukan catatan |
 | `hapus <nomor\|"teks">` | hapus entri (berkonfirmasi) |
 | `lokasi` | jalur file catatan project aktif |

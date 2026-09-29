@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync, readFileSync, existsSync } from "node:fs";
+import { mkdtempSync, rmSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import {
@@ -10,6 +10,10 @@ import {
   daftarEntri,
   hapusEntri,
   cariEntri,
+  rekapEntri,
+  periodeValid,
+  hitungStreak,
+  tanggalOffset,
   namaProyekSekarang,
   pathCatatan,
   ROOT,
@@ -149,5 +153,128 @@ test("buatLogBaru membuat folder catatan bila belum ada", () => {
   catat(dalam, "Dimas", "Tambah", "isi");
   assert.ok(existsSync(join(dir, "catatan")), "folder catatan harus dibuat otomatis");
   assert.match(readFileSync(dalam, "utf8"), /isi/);
+  teardown(dir);
+});
+
+test("tanggalOffset mundur dan maju lintas bulan dengan benar", () => {
+  assert.equal(tanggalOffset("2026-09-27", -6), "2026-09-21");
+  assert.equal(tanggalOffset("2026-09-01", -1), "2026-08-31");
+  assert.equal(tanggalOffset("2026-01-01", -1), "2025-12-31");
+  assert.equal(tanggalOffset("2026-09-27", 0), "2026-09-27");
+});
+
+test("hitungStreak menghitung hari berurutan dan berhenti saat ada yang kosong", () => {
+  const acuan = "2026-09-27";
+  assert.equal(hitungStreak(new Set(), acuan), 0);
+  assert.equal(hitungStreak(new Set(["2026-09-27"]), acuan), 1);
+  assert.equal(
+    hitungStreak(new Set(["2026-09-27", "2026-09-26", "2026-09-25"]), acuan),
+    3
+  );
+  assert.equal(
+    hitungStreak(new Set(["2026-09-27", "2026-09-26", "2026-09-24"]), acuan),
+    2,
+    "2026-09-25 kosong jadi streak terputus"
+  );
+  assert.equal(
+    hitungStreak(new Set(["2026-09-26"]), acuan),
+    1,
+    "kalau hari ini kosong, streak dihitung dari kemarin"
+  );
+});
+
+test("periodeValid hanya menerima periode yang dikenal", () => {
+  assert.ok(periodeValid("hari"));
+  assert.ok(periodeValid("minggu"));
+  assert.ok(periodeValid("bulan"));
+  assert.ok(periodeValid("semua"));
+  assert.ok(!periodeValid("minggu depan"));
+  assert.ok(!periodeValid(""));
+});
+
+test("rekapEntri menghitung total, hari aktif, dan breakdown per jenis", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "satu");
+  catat(path, "Dimas", "Perbaiki", "dua");
+  catat(path, "Dimas", "Perbaiki", "tiga");
+
+  const r = rekapEntri(path, "hari");
+  assert.equal(r.total, 3);
+  assert.equal(r.hariAktif, 1);
+  assert.equal(r.totalHari, 1);
+  assert.deepEqual(r.perTipe, [
+    ["Perbaiki", 2],
+    ["Tambah", 1],
+  ]);
+  assert.equal(r.maxPerTipe, 2);
+  assert.equal(r.perTanggal.length, 1);
+  assert.equal(r.perTanggal[0][0], tanggalHariIni());
+  teardown(dir);
+});
+
+test("rekapEntri streak memakai seluruh riwayat, bukan cuma periode", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "hari ini");
+  const r = rekapEntri(path, "hari");
+  assert.ok(r.streak >= 1, "harus ada entri hari ini sehingga streak minimal 1");
+  teardown(dir);
+});
+
+test("rekapEntri periode kosong memberi angka nol tanpa error", () => {
+  const { dir, path } = setup();
+  const r = rekapEntri(path, "semua");
+  assert.equal(r.total, 0);
+  assert.equal(r.hariAktif, 0);
+  assert.equal(r.streak, 0);
+  assert.deepEqual(r.perTipe, []);
+  assert.deepEqual(r.perTanggal, []);
+  assert.equal(r.maxPerTipe, 0);
+  assert.equal(r.maxPerTanggal, 0);
+  teardown(dir);
+});
+
+test("rekapEntri rekap bulan hanya menghitung entri bulan berjalan", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "bulan ini");
+
+  const isi = readFileSync(path, "utf8");
+  const bulanLalu = tanggalOffset(tanggalHariIni(), -35);
+  writeFileSync(
+    path,
+    isi + `\n## ${bulanLalu} (1 Januari 2026)\n\n- 09.00 — **Ubah**: entri lama\n`
+  );
+
+  const bulanIni = rekapEntri(path, "bulan");
+  assert.equal(bulanIni.total, 1, "entri bulan lalu tidak boleh ikut");
+  assert.equal(bulanIni.perTipe[0][0], "Tambah");
+
+  const semua = rekapEntri(path, "semua");
+  assert.equal(semua.total, 2, "periode semua harus mengambil semua entri");
+  teardown(dir);
+});
+
+test("rekapEntri rekap minggu memakai rentang 7 hari", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "hari ini");
+  const isi = readFileSync(path, "utf8");
+  const lama = tanggalOffset(tanggalHariIni(), -30);
+  writeFileSync(path, isi + `\n## ${lama} (1 Agustus 2026)\n\n- 09.00 — **Ubah**: entri lama\n`);
+
+  const minggu = rekapEntri(path, "minggu");
+  assert.equal(minggu.total, 1, "entri 30 hari lalu di luar rentang 7 hari");
+  assert.equal(minggu.totalHari, 7);
+  assert.equal(minggu.rentang[0], tanggalOffset(tanggalHariIni(), -6));
+  assert.equal(minggu.rentang[1], tanggalHariIni());
+  teardown(dir);
+});
+
+test("rekapEntri tidak menulis ke file catatan (read-only)", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "satu");
+  const sebelum = readFileSync(path, "utf8");
+  rekapEntri(path, "hari");
+  rekapEntri(path, "bulan");
+  rekapEntri(path, "semua");
+  assert.equal(readFileSync(path, "utf8"), sebelum, "rekap tidak boleh mengubah file");
   teardown(dir);
 });
