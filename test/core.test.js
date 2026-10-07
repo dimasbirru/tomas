@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, rmSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import { mkdtempSync, rmSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, existsSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import {
@@ -10,6 +10,10 @@ import {
   daftarEntri,
   hapusEntri,
   cariEntri,
+  simpanKeSimpanan,
+  undoTerakhir,
+  daftarSimpanan,
+  dirSimpanan,
   rekapEntri,
   periodeValid,
   hitungStreak,
@@ -276,5 +280,165 @@ test("rekapEntri tidak menulis ke file catatan (read-only)", () => {
   rekapEntri(path, "bulan");
   rekapEntri(path, "semua");
   assert.equal(readFileSync(path, "utf8"), sebelum, "rekap tidak boleh mengubah file");
+  teardown(dir);
+});
+
+test("dirSimpanan menaruh simpanan di bawah catatan/.tomas/simpanan", () => {
+  const { dir, path } = setup();
+  const s = dirSimpanan(path);
+  assert.equal(basename(s), "simpanan");
+  assert.equal(basename(dirname(s)), ".tomas");
+  assert.equal(dirname(dirname(s)), dirname(path));
+  teardown(dir);
+});
+
+test("simpanKeSimpanan menyalin isi file persis ke stempel waktu", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "asli");
+  const asli = readFileSync(path, "utf8");
+
+  const tujuan = simpanKeSimpanan(path);
+  assert.ok(tujuan, "harus mengembalikan path simpanan");
+  assert.equal(readFileSync(tujuan, "utf8"), asli, "isi simpanan harus sama persis");
+  assert.match(basename(tujuan), /^\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}(-\d+)?\.md$/);
+  assert.equal(dirname(tujuan), dirSimpanan(path), "harus disimpan di folder simpanan");
+  teardown(dir);
+});
+
+test("simpanKeSimpanan mengembalikan null kalau file catatan belum ada", () => {
+  const { dir, path } = setup();
+  assert.equal(simpanKeSimpanan(path), null);
+  teardown(dir);
+});
+
+test("simpanKeSimpanan tidak pernah menimpa simpanan yang sudah ada", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "asli");
+
+  const dirS = dirSimpanan(path);
+  mkdirSync(dirS, { recursive: true });
+
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, "0");
+  const nama = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}-${p(d.getMinutes())}-${p(d.getSeconds())}.md`;
+  const ada = join(dirS, nama);
+  writeFileSync(ada, "DUMMY LAMA");
+
+  simpanKeSimpanan(path);
+
+  assert.equal(
+    readFileSync(ada, "utf8"),
+    "DUMMY LAMA",
+    "simpanan yang sudah ada tidak boleh ditimpa"
+  );
+  teardown(dir);
+});
+
+test("hapusEntri membuat simpanan berisi isi file sebelum dihapus", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "satu");
+  catat(path, "Dimas", "Tambah", "dua");
+  const sebelum = readFileSync(path, "utf8");
+
+  const hasil = hapusEntri(path, 1);
+  assert.ok(hasil.ok);
+  assert.ok(hasil.simpanan, "hasil hapus harus menyertakan path simpanan");
+  assert.equal(readFileSync(hasil.simpanan, "utf8"), sebelum);
+  assert.notEqual(readFileSync(path, "utf8"), sebelum, "file utama harus berubah");
+  teardown(dir);
+});
+
+test("hapusEntri gagal tidak membuat simpanan", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "satu");
+  assert.equal(daftarSimpanan(path).length, 0, "belum ada simpanan sebelum hapus");
+
+  const hasil = hapusEntri(path, 99);
+  assert.ok(!hasil.ok);
+  assert.equal(hasil.simpanan, undefined);
+  assert.equal(daftarSimpanan(path).length, 0, "tidak boleh ada simpanan baru");
+  teardown(dir);
+});
+
+test("undoTerakhir mengembalikan isi file persis seperti sebelum hapus", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "satu");
+  catat(path, "Dimas", "Tambah", "dua");
+  const sebelum = readFileSync(path, "utf8");
+
+  hapusEntri(path, 1);
+  assert.notEqual(readFileSync(path, "utf8"), sebelum);
+
+  const hasil = undoTerakhir(path);
+  assert.ok(hasil.ok);
+  assert.equal(readFileSync(path, "utf8"), sebelum);
+  teardown(dir);
+});
+
+test("undoTerakhir membuang simpanan yang dipakai", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "satu");
+  hapusEntri(path, 1);
+  assert.equal(daftarSimpanan(path).length, 1);
+
+  const hasil = undoTerakhir(path);
+  assert.equal(hasil.sisa, 0);
+  assert.equal(daftarSimpanan(path).length, 0, "simpanan harus dibuang setelah dipakai");
+  teardown(dir);
+});
+
+test("undoTerakhir tanpa simpanan memberi hasil gagal tanpa error", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "satu");
+  const isi = readFileSync(path, "utf8");
+
+  const hasil = undoTerakhir(path);
+  assert.ok(!hasil.ok);
+  assert.equal(hasil.alasan, "tidak-ada");
+  assert.equal(readFileSync(path, "utf8"), isi, "file tidak boleh diubah");
+  teardown(dir);
+});
+
+test("dua hapus beruntun lalu undo mengembalikan ke keadaan setelah hapus pertama", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "satu");
+  catat(path, "Dimas", "Tambah", "dua");
+  catat(path, "Dimas", "Tambah", "tiga");
+
+  const asli = daftarEntri(path).map((e) => e.pesan);
+  assert.deepEqual(asli, ["satu", "dua", "tiga"]);
+
+  hapusEntri(path, 1); // hapus "satu"
+  const setelahPertama = daftarEntri(path).map((e) => e.pesan);
+  assert.deepEqual(setelahPertama, ["dua", "tiga"]);
+
+  hapusEntri(path, 1); // hapus "dua"
+  assert.deepEqual(daftarEntri(path).map((e) => e.pesan), ["tiga"]);
+
+  undoTerakhir(path);
+  assert.deepEqual(
+    daftarEntri(path).map((e) => e.pesan),
+    setelahPertama,
+    "harus kembali ke keadaan setelah hapus pertama"
+  );
+  teardown(dir);
+});
+
+test("dua hapus beruntun membuat dua simpanan, undo dua kali mengembalikan ke awal", () => {
+  const { dir, path } = setup();
+  catat(path, "Dimas", "Tambah", "satu");
+  catat(path, "Dimas", "Tambah", "dua");
+  catat(path, "Dimas", "Tambah", "tiga");
+  const asli = readFileSync(path, "utf8");
+
+  hapusEntri(path, 1);
+  hapusEntri(path, 1);
+  assert.equal(daftarSimpanan(path).length, 2, "setiap hapus harus meninggalkan simpanan");
+
+  undoTerakhir(path);
+  assert.equal(daftarSimpanan(path).length, 1);
+  undoTerakhir(path);
+  assert.equal(daftarSimpanan(path).length, 0);
+  assert.equal(readFileSync(path, "utf8"), asli, "berantai dua undo harus kembali ke awal");
   teardown(dir);
 });

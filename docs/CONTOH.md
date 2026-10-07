@@ -18,6 +18,7 @@ MENGELOLA
   hariini                    lihat catatan hari ini
   rekap [hari|bulan|semua]   ringkasan statistik catatan
   hapus <nomor|"teks">       hapus entri (lihat nomor atau cari teks) — dikonfirmasi
+  undo                       kembalikan penghapusan terakhir
   cari "kata"                temukan catatan berisi kata
 
 LAINNYA
@@ -71,6 +72,8 @@ Entri nomor 2 yang akan dihapus:
 Yakin hapus? Ketik ya untuk lanjut, atau lainnya untuk batal.
 tomas> ya
 Sudah kuhapus entri nomor 2.
+Simpanan: C:\Users\kemba\Projects\tomas\catatan\.tomas\simpanan\2026-09-25-15-56-02.md
+Ketik undo untuk mengembalikan, satu langkah per kali.
 ```
 
 ## Menghapus entri kalau lupa nomornya (pakai teks)
@@ -98,6 +101,27 @@ Sudah kuhapus 3 entri.
 ```
 
 Ketik selain nomor (mis. `lihat` atau `keluar`) untuk membatalkan pilihan itu.
+
+## Kembalikan penghapusan (undo)
+
+Sebelum file ditimpa, tomas menyimpan salinannya ke `catatan/.tomas/simpanan/`. Perintah `undo` mengembalikan isi file persis seperti sebelum terakhir kali dihapus:
+
+```
+tomas> undo
+File dikembalikan seperti sebelum hapus.
+Dari: 2026-09-25-15-56-02.md
+Sisa simpanan: 0
+```
+
+`undo` hanya menangani penghapusan — perintah tambah/perbaiki/ubah tidak bisa dibatalkan dengannya. Satu langkah per kali: kalau kamu hapus dua kali berturut-turut, `undo` pertama mengembalikan ke keadaan setelah hapus pertama, `undo` kedua ke keadaan sebelum keduanya.
+
+Kalau tidak ada simpanan tersisa:
+
+```
+tomas> undo
+Tidak ada simpanan yang bisa dikembalikan.
+Simpanan tersimpan di C:\Users\kemba\Projects\tomas\catatan\.tomas\simpanan
+```
 
 ## Mencari catatan
 

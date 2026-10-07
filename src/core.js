@@ -1,4 +1,4 @@
-import { mkdirSync, readFileSync, writeFileSync, appendFileSync, existsSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, appendFileSync, existsSync, readdirSync, unlinkSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -152,6 +152,7 @@ export function periodeValid(periode) {
   return PERIODE_REKAP.includes(periode);
 }
 
+//function untuk membuat rekap entri berdasarkan periode tertentu
 export function rekapEntri(path, periode = "minggu") {
   const acuan = tanggalHariIni();
   const semua = daftarEntri(path);
@@ -212,6 +213,60 @@ export function rekapEntri(path, periode = "minggu") {
   };
 }
 
+//function unutk menghapus entri berdasarkan nomor urut
+export function dirSimpanan(path) {
+  return join(dirname(path), ".tomas", "simpanan");
+}
+
+const POLA_SIMPANAN = /^(\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2})(?:-(\d+))?\.md$/;
+
+export function daftarSimpanan(path) {
+  const dir = dirSimpanan(path);
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((f) => POLA_SIMPANAN.test(f))
+    .map((f) => {
+      const m = f.match(POLA_SIMPANAN);
+      return { nama: f, waktu: m[1], urut: Number(m[2] || 0) };
+    })
+    .sort((a, b) => a.waktu.localeCompare(b.waktu) || a.urut - b.urut)
+    .map((s) => s.nama);
+}
+
+function stempelWaktu() {
+  const d = new Date();
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}-${p(d.getHours())}-${p(d.getMinutes())}-${p(d.getSeconds())}`;
+}
+
+export function simpanKeSimpanan(path) {
+  const isi = bacaCatatan(path);
+  if (isi === null) return null;
+  const dir = dirSimpanan(path);
+  mkdirSync(dir, { recursive: true });
+  const stempel = stempelWaktu();
+  let nama = `${stempel}.md`;
+  let n = 1;
+  while (existsSync(join(dir, nama))) {
+    nama = `${stempel}-${n}.md`;
+    n += 1;
+  }
+  const tujuan = join(dir, nama);
+  writeFileSync(tujuan, isi);
+  return tujuan;
+}
+
+export function undoTerakhir(path) {
+  const daftar = daftarSimpanan(path);
+  if (!daftar.length) return { ok: false, alasan: "tidak-ada" };
+  const dir = dirSimpanan(path);
+  const terpilih = daftar[daftar.length - 1];
+  const isi = readFileSync(join(dir, terpilih), "utf8");
+  writeFileSync(path, isi);
+  unlinkSync(join(dir, terpilih));
+  return { ok: true, dari: terpilih, sisa: daftar.length - 1 };
+}
+
 export function hapusEntri(path, nomor) {
   const teks = bacaCatatan(path);
   if (!teks) return { ok: false, alasan: "file-tidak-ada" };
@@ -253,9 +308,11 @@ export function hapusEntri(path, nomor) {
 
   if (!dihapus) return { ok: false, alasan: "nomor-tidak-ditemukan" };
 
+  const simpanan = simpanKeSimpanan(path);
+
   while (kepala.length && kepala[kepala.length - 1] === "") kepala.pop();
   const hasil = kepala.length ? [...kepala, "", ...seksi] : seksi;
   const teksBaru = hasil.join("\n").replace(/\n{3,}/g, "\n\n").trim();
   writeFileSync(path, `${teksBaru}\n`);
-  return { ok: true, nomor };
+  return { ok: true, nomor, simpanan };
 }

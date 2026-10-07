@@ -5,6 +5,25 @@ Semua perubahan penting pada tomas dicatat di file ini.
 Format mengikuti [Keep a Changelog](https://keepachangelog.com/id-ID/1.1.0/).
 Versi mengikuti [Semantic Versioning](https://semver.org/lang/id/).
 
+## [1.7.0] - 2026-10-07
+
+### Ditambahkan
+- Simpanan otomatis sebelum file ditimpa oleh `hapus`.
+  - Salinan isi file disimpan ke `catatan/.tomas/simpanan/` dengan nama `YYYY-MM-DD-HH-mm-ss.md`.
+  - Tabrakan nama (hapus dua kali dalam satu detik) ditangani tanpa menimpa simpanan lama.
+  - Pesan hapus sekarang menampilkan jalur simpanan beserta perintah `undo`.
+- Perintah `undo` — kembalikan penghapusan terakhir, satu langkah per kali.
+  - Mengembalikan isi file persis seperti sebelum dihapus, lalu membuang simpanan yang dipakai.
+  - Bila tidak ada simpanan, memberi tahu lokasi folder simpanan.
+  - Fungsi baru di `src/core.js`: `dirSimpanan()`, `daftarSimpanan()`, `simpanKeSimpanan()`, `undoTerakhir()`.
+- 11 test baru; total 35 test lulus.
+
+### Perubahan
+- `hapusEntri()` sekarang mengembalikan `simpanan` (jalur file cadangan) pada hasil sukses.
+- Perintah `undo` ditambahkan ke kelompok MENGELOLA pada `menu`.
+- README dan docs/CONTOH.md ditambah bagian simpanan & undo.
+- Versi dinaikkan dari `1.6.0` menjadi `1.7.0`.
+
 ## [1.6.0] - 2026-09-29
 
 ### Ditambahkan

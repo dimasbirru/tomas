@@ -13,6 +13,8 @@ import {
   daftarEntri,
   cariEntri,
   hapusEntri,
+  undoTerakhir,
+  dirSimpanan,
   rekapEntri,
   periodeValid,
   tanggalOffset,
@@ -60,6 +62,18 @@ function judulRekap(periode) {
   if (periode === "semua") return "SELURUH RIWAYAT";
   const mulai = tanggalOffset(tanggalHariIni(), -6);
   return `7 HARI TERAKHIR (${mulai} s/d ${tanggalHariIni()})`;
+}
+
+function jalankanUndo() {
+  const hasil = undoTerakhir(fileCatatan);
+  if (!hasil.ok) {
+    console.log(kuning("Tidak ada simpanan yang bisa dikembalikan."));
+    console.log(abu(`Simpanan tersimpan di ${dirSimpanan(fileCatatan)}`));
+    return;
+  }
+  console.log("File dikembalikan seperti sebelum hapus.");
+  console.log(abu(`Dari: ${hasil.dari}`));
+  console.log(abu(`Sisa simpanan: ${hasil.sisa}`));
 }
 
 function cetakRekap(periode = "minggu") {
@@ -136,6 +150,7 @@ function tampilkanMenu() {
         ["hariini", "lihat catatan hari ini"],
         ["rekap [hari|bulan|semua]", "ringkasan statistik catatan"],
         ['hapus <nomor|"teks">', "hapus entri (lihat nomor atau cari teks) — dikonfirmasi"],
+        ["undo", "kembalikan penghapusan terakhir"],
         ['cari "kata"', "temukan catatan berisi kata"],
       ],
     },
@@ -264,6 +279,18 @@ function hapusDenganJawaban(pesan) {
   menunggu = { aksi: "pilih-entri", nomor: hasil.map((e) => e.nomor) };
 }
 
+function cetakHasilHapus(hasil, pesan, opsi = {}) {
+  if (!hasil.ok) {
+    console.log(kuning(pesan));
+    return;
+  }
+  console.log(pesan);
+  if (!opsi.hening) {
+    console.log(abu(`Simpanan: ${hasil.simpanan}`));
+    console.log(abu(`Ketik ${hijau("undo")} untuk mengembalikan, satu langkah per kali.`));
+  }
+}
+
 function prosesJawaban(baris) {
   if (!menunggu) return true;
   const jawaban = baris.trim().toLowerCase();
@@ -271,11 +298,12 @@ function prosesJawaban(baris) {
   if (menunggu.aksi === "konfirmasi-hapus") {
     if (YA.has(jawaban)) {
       const hasil = hapusEntri(fileCatatan, menunggu.nomor);
-      if (hasil.ok) {
-        console.log(`Sudah kuhapus entri nomor ${tebal(hijau(String(menunggu.nomor)))}.`);
-      } else {
-        console.log(kuning(`Entri nomor ${menunggu.nomor} tidak ditemukan saat eksekusi.`));
-      }
+      cetakHasilHapus(
+        hasil,
+        hasil.ok
+          ? `Sudah kuhapus entri nomor ${tebal(hijau(String(menunggu.nomor)))}.`
+          : `Entri nomor ${menunggu.nomor} tidak ditemukan saat eksekusi.`
+      );
     } else {
       console.log("Batal, tidak ada yang dihapus.");
     }
@@ -286,10 +314,21 @@ function prosesJawaban(baris) {
   if (menunggu.aksi === "pilih-entri") {
     if (jawaban === "semua" || jawaban === "all") {
       let berhasil = 0;
+      let simpanan = null;
       for (const nomor of [...menunggu.nomor].sort((a, b) => b - a)) {
-        if (hapusEntri(fileCatatan, nomor).ok) berhasil += 1;
+        const hasil = hapusEntri(fileCatatan, nomor);
+        if (hasil.ok) {
+          berhasil += 1;
+          simpanan = hasil.simpanan;
+        }
       }
-      console.log(`Sudah kuhapus ${tebal(hijau(String(berhasil)))} entri.`);
+      if (berhasil > 0) {
+        console.log(`Sudah kuhapus ${tebal(hijau(String(berhasil)))} entri.`);
+        console.log(abu(`Simpanan: ${simpanan}`));
+        console.log(abu(`Ketik ${hijau("undo")} untuk mengembalikan, satu langkah per kali.`));
+      } else {
+        console.log(kuning("Tidak ada yang terhapus."));
+      }
       menunggu = null;
       return true;
     }
@@ -301,10 +340,11 @@ function prosesJawaban(baris) {
     const nomor = Number(jawaban);
     if (Number.isInteger(nomor) && menunggu.nomor.includes(nomor)) {
       const hasil = hapusEntri(fileCatatan, nomor);
-      console.log(
+      cetakHasilHapus(
+        hasil,
         hasil.ok
           ? `Sudah kuhapus entri nomor ${tebal(hijau(String(nomor)))}.`
-          : kuning(`Entri nomor ${nomor} tidak ditemukan saat eksekusi.`)
+          : `Entri nomor ${nomor} tidak ditemukan saat eksekusi.`
       );
       menunggu = null;
       return true;
@@ -370,6 +410,9 @@ function jalankan(perintah, pesan) {
       return;
     case "rekap":
       cetakRekap(pesan || "minggu");
+      return;
+    case "undo":
+      jalankanUndo();
       return;
     case "versi":
       versi();

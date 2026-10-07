@@ -23,6 +23,7 @@ Seluruh catatan Dimas:
 - Mencatat: `tambah`, `perbaiki`, `ubah`
 - Mengelola: `lihat`, `hariini`, `cari "kata"`, `hapus <nomor|"teks">` (dengan pratinjau & konfirmasi)
 - Statistik: `rekap [hari|bulan|semua]` — total entri, hari aktif, streak, jam paling sering, dan breakdown per jenis
+- Aman: setiap `hapus` menyimpan salinan sebelum file ditimpa, dan `undo` bisa mengembalikannya
 - Perintah `lokasi` untuk melihat jalur file catatan project aktif
 - Tanpa dependensi eksternal — murni Node.js
 - Auto-test bawaan (`npm test`)
@@ -62,6 +63,7 @@ tomas   → memakai catatan/proyek-portfolio.md
 | `rekap [hari\|bulan\|semua]` | ringkasan statistik catatan (default 7 hari terakhir) |
 | `cari "kata"` | temukan catatan |
 | `hapus <nomor\|"teks">` | hapus entri (berkonfirmasi) |
+| `undo` | kembalikan penghapusan terakhir |
 | `lokasi` | jalur file catatan project aktif |
 | `menu` | daftar perintah |
 | `versi` | versi tomas |
